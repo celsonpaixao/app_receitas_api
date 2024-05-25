@@ -52,4 +52,4 @@ CREATE TABLE IF NOT EXISTS Tbl_Avaliacao_Receita (
 
 ## DotENV COnnection String
 
-CONNECTION_STRING=Host = localhost; Username= postgres;Port= 5432 ;Password = 8850; Database = db_receitas
+CONNECTION_STRING=Host = localhost; Username= postgres;Port= 5432 ;Password = password; Database = dbname
