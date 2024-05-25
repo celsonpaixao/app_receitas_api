@@ -1,3 +1,6 @@
+# app_receitas_api
+
+## Script DB
 CREATE TABLE IF NOT EXISTS Tbl_User (
     id SERIAL PRIMARY KEY,
     primeiro_nome TEXT NOT NULL,
@@ -46,4 +49,7 @@ CREATE TABLE IF NOT EXISTS Tbl_Avaliacao_Receita (
     FOREIGN KEY (id_avaliacao) REFERENCES Tbl_Avaliacao(id),
     FOREIGN KEY (id_receita) REFERENCES Tbl_Receita(id)
 );
-# app_receitas_api
+
+## DotENV COnnection String
+
+CONNECTION_STRING=Host = localhost; Username= postgres;Port= 5432 ;Password = 8850; Database = db_receitas
