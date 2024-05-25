@@ -46,3 +46,4 @@ CREATE TABLE IF NOT EXISTS Tbl_Avaliacao_Receita (
     FOREIGN KEY (id_avaliacao) REFERENCES Tbl_Avaliacao(id),
     FOREIGN KEY (id_receita) REFERENCES Tbl_Receita(id)
 );
+# app_receitas_api
