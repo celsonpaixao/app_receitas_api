@@ -10,6 +10,7 @@ namespace api_receita.DAL.Interfaces
     public interface IUser
     {
         Task<DTOResposta> CadastarUsuario(UserModel user);
+        Task<DTOResposta> LogarUsuario(string email, string password);
         Task<DTOResposta> ListarTodosUsuarios();
     }
 }

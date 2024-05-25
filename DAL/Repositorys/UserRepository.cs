@@ -3,6 +3,8 @@ using api_receita.DAL.Database;
 using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
+using app_receitas_api.Settings;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace api_receita.DAL.Repositorys
 {
@@ -73,5 +75,41 @@ namespace api_receita.DAL.Repositorys
 
             return resposta;
         }
+
+        public async Task<DTOResposta> LogarUsuario(string email, string password)
+        {
+            DTOResposta resposta = new DTOResposta();
+
+
+            var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
+
+            try
+            {
+                // Verificar se o usuário foi encontrado e se a senha está correta
+                if (user != null && user.Password == password)
+                {
+                    // Gerar token JWT com base no usuário autenticado
+                    var token = TokenServices.GenericToken(user);
+
+                    // Autenticação bem-sucedida
+                    resposta.mensagem = "Usuário autenticado com sucesso.";
+                    resposta.resposta = new { user, token }; // Você pode retornar informações adicionais do usuário, se desejar
+                }
+                else
+                {
+                    // Usuário não encontrado ou senha incorreta
+                    resposta.mensagem = "E-mail ou senha incorretos.";
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // Lidar com exceções, se necessário
+                resposta.mensagem = $"Ocorreu um erro durante a autenticação: {ex.Message}";
+            }
+
+            return resposta;
+        }
+
+
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_receita.Controllers
@@ -18,12 +19,22 @@ namespace api_receita.Controllers
         {
             userServices = _user;
         }
-        [HttpPost("Cagastrar_User")]
+        [HttpPost("register")]
 
         public async Task<ActionResult<DTOResposta>> CadastrarUsuario(UserModel user)
         {
 
-            return Ok(await userServices.CadastarUsuario(user));
+
+            var resposta = userServices.CadastarUsuario(user);
+            return Ok(await resposta);
+        }
+        // [Authorize]
+        [HttpPost("auth")]
+
+        public async Task<ActionResult<DTOResposta>> LogaarUsuario(string email, string password)
+        {
+            var resposta = userServices.LogarUsuario(email, password);
+            return Ok(await resposta);
         }
 
         [HttpGet("Listar_Todos_Usuarios")]

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace api_receita.Models
 {
-
     [Table("tbl_user")]
     public class UserModel
     {
@@ -19,8 +19,8 @@ namespace api_receita.Models
         [Column("ultimo_nome")]
         public string Ultimo_Name { get; set; }
 
-        [Column("email")]
         [Required]
+        [Column("email")]
         public string Email { get; set; }
 
         [Required]
@@ -29,7 +29,5 @@ namespace api_receita.Models
 
         [Column("image_url")]
         public string? ImageURL { get; set; }
-
-
     }
 }
