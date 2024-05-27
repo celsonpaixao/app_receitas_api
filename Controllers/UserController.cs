@@ -19,29 +19,64 @@ namespace api_receita.Controllers
         {
             userServices = _user;
         }
-        [HttpPost("register")]
+        [HttpPost("register_user")]
 
-        public async Task<ActionResult<DTOResposta>> CadastrarUsuario(UserModel user)
+        public async Task<ActionResult<DTOResposta>> CadastrarUsuario([FromForm] UserModel user)
         {
+            if (user.ImagePash != null)
+            {
+                var imgDirectory = Path.Combine("Uploads", "User_Avatar");
+                var imgPath = Path.Combine(imgDirectory, user.ImagePash.FileName);
 
+                // Ensure the directory exists
+                Directory.CreateDirectory(imgDirectory);
+
+                using (var fileStream = new FileStream(imgPath, FileMode.Create))
+                {
+                    await user.ImagePash.CopyToAsync(fileStream);
+                }
+
+                // Set the image path to the user object
+                user.ImageURL = imgPath;
+            }
 
             var resposta = userServices.CadastarUsuario(user);
             return Ok(await resposta);
         }
         // [Authorize]
-        [HttpPost("auth")]
+        [HttpPost("auth_user")]
 
-        public async Task<ActionResult<DTOResposta>> LogaarUsuario(string email, string password)
+        public async Task<ActionResult<DTOResposta>> LogarUsuario(string email, string password)
         {
             var resposta = userServices.LogarUsuario(email, password);
             return Ok(await resposta);
         }
 
-        [HttpGet("Listar_Todos_Usuarios")]
+        [HttpGet("list_all_user")]
 
         public async Task<ActionResult<DTOResposta>> ListarTodosUsers()
         {
             return Ok(await userServices.ListarTodosUsuarios());
+        }
+        [Authorize]
+        [HttpPut("update_user")]
+       
+
+        public async Task<ActionResult<DTOResposta>> AtualizarUsuario(int id_user, UserModel user)
+        {
+            var resposta = await userServices.AtualizarUsuario(id_user, user);
+
+            return Ok(resposta);
+        }
+        [Authorize]
+        [HttpDelete("delete_user")]
+       
+
+        public async Task<ActionResult<DTOResposta>> DeletarUsuario(int id_user)
+        {
+            var resposta = await userServices.DeletarUsuario(id_user);
+
+            return Ok(resposta);
         }
     }
 }

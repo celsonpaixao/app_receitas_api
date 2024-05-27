@@ -12,6 +12,10 @@ namespace app_receitas_api.DAL.Interfaces
     {
 
         Task<DTOResposta> PublicarReceitas(ReceitaModel receita);
+        Task<DTOResposta> AtualizarReceitas(int id_receita, ReceitaModel receita);
         Task<DTOResposta> ListarReceitas();
+        Task<DTOResposta> ListarPorID(int id);
+
+        Task<DTOResposta> PagarReceita(int id);
     }
 }

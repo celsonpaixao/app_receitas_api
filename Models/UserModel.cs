@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 
 namespace api_receita.Models
@@ -26,7 +27,10 @@ namespace api_receita.Models
         [Required]
         [Column("password")]
         public string Password { get; set; }
-
+        
+        [NotMapped]
+        [JsonIgnore]
+        public IFormFile? ImagePash { get; set; }
         [Column("image_url")]
         public string? ImageURL { get; set; }
     }

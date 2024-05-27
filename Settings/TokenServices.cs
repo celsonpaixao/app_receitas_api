@@ -22,7 +22,7 @@ namespace app_receitas_api.Settings
                     new Claim("username", user.Primeiro_Name.ToString() + "" + user.Ultimo_Name.ToString()),
                     
                 }),
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddDays(360),
 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };

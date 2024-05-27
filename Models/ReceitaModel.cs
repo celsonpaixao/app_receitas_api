@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace app_receitas_api.Models
 {
@@ -34,14 +33,19 @@ namespace app_receitas_api.Models
         [Required]
         public string Instructions { get; set; }
 
-        [Column("image_url")]
+        [NotMapped]
+        [JsonIgnore]
         [Required]
-        public string ImageURL { get; set; }
+        public IFormFile ImagePash { get; set; }
+
+        [Column("image_url")]
+        public string? ImageURL { get; set; }
 
         [Column("id_user")]
         [Required]
         public int UserId { get; set; }
 
-
+        [NotMapped]
+        public List<int> Categorias { get; set; } = new List<int>();
     }
 }

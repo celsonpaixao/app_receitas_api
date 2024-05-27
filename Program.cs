@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using app_receitas_api.DAL.Interfaces;
 using app_receitas_api.DAL.Repositorys;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Carregar as variáveis de ambiente do arquivo .env
@@ -60,6 +61,9 @@ builder.Services.AddDbContext<AppReceitasDbContext>(options =>
 // Registrar repositórios
 builder.Services.AddTransient<IUser, UserRepository>();
 builder.Services.AddTransient<IReceitas, ReceitaRepository>();
+builder.Services.AddTransient<ICategoria, CategoriaRepository>();
+builder.Services.AddTransient<IAvaliacao, AvaliacaoRepository>();
+
 var key = Encoding.ASCII.GetBytes(Config.Secret);
 builder.Services.AddAuthentication(x =>
 {

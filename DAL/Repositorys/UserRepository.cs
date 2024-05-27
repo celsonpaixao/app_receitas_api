@@ -17,6 +17,39 @@ namespace api_receita.DAL.Repositorys
             dbContext = _dbContext;
         }
 
+        public async Task<DTOResposta> AtualizarUsuario(int id_user, UserModel userAtualizado)
+        {
+            DTOResposta resposta = new DTOResposta();
+            try
+            {
+                var user = await dbContext.Tb_User.FindAsync(id_user);
+                if (user == null)
+                {
+                    resposta.mensagem = "Usuário não encontrado";
+                    return resposta;
+                }
+
+                // Atualiza os campos do usuário
+                user.Primeiro_Name = userAtualizado.Primeiro_Name;
+                user.Ultimo_Name = userAtualizado.Ultimo_Name;
+                user.Email = userAtualizado.Email;
+                user.Password = userAtualizado.Password;
+
+                dbContext.Tb_User.Update(user);
+                await dbContext.SaveChangesAsync();
+
+                resposta.resposta = user;
+                resposta.mensagem = "Usuário atualizado com sucesso";
+            }
+            catch (Exception e)
+            {
+                resposta.mensagem = $"Erro ao atualizar usuário: {e.Message}";
+            }
+
+            return resposta;
+        }
+
+
         public async Task<DTOResposta> CadastarUsuario(UserModel user)
         {
             DTOResposta resposta = new DTOResposta();
@@ -43,12 +76,38 @@ namespace api_receita.DAL.Repositorys
             }
             catch (Exception e)
             {
-                resposta.mensagem = "Algo deu errado! " + e.ToString();
-                Console.WriteLine(e.Message);
+                resposta.mensagem = "Algo deu errado! " + e.Message;
+                
             }
 
             return resposta;
         }
+
+        public async Task<DTOResposta> DeletarUsuario(int id_user)
+        {
+            DTOResposta resposta = new DTOResposta();
+            try
+            {
+                var user = await dbContext.Tb_User.FindAsync(id_user);
+                if (user == null)
+                {
+                    resposta.mensagem = "Usuário não encontrado";
+                    return resposta;
+                }
+
+                dbContext.Tb_User.Remove(user);
+                await dbContext.SaveChangesAsync();
+
+                resposta.mensagem = "Usuário deletado com sucesso";
+            }
+            catch (Exception e)
+            {
+                resposta.mensagem = $"Erro ao deletar usuário: {e.Message}";
+            }
+
+            return resposta;
+        }
+
 
         public async Task<DTOResposta> ListarTodosUsuarios()
         {
@@ -56,20 +115,20 @@ namespace api_receita.DAL.Repositorys
 
             try
             {
-                var req = from user in dbContext.Tb_User
+                var req =  from user in dbContext.Tb_User
                           select new
                           {
                               user
                           };
 
-                resposta.resposta = req;
+                resposta.resposta =  req;
                 resposta.mensagem = "Sucesso";
 
             }
             catch (System.Exception e)
             {
 
-                resposta.mensagem = "Algo deu errado! " + e.ToString();
+                resposta.mensagem = "Algo deu errado! " + e.Message;
                 Console.WriteLine(e.Message);
             }
 
@@ -80,26 +139,38 @@ namespace api_receita.DAL.Repositorys
         {
             DTOResposta resposta = new DTOResposta();
 
-
-            var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
-
             try
             {
-                // Verificar se o usuário foi encontrado e se a senha está correta
-                if (user != null && user.Password == password)
-                {
-                    // Gerar token JWT com base no usuário autenticado
-                    var token = TokenServices.GenericToken(user);
+                // Procurar o usuário pelo e-mail e senha no banco de dados
+                var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
 
-                    // Autenticação bem-sucedida
-                    resposta.mensagem = "Usuário autenticado com sucesso.";
-                    resposta.resposta = new { user, token }; // Você pode retornar informações adicionais do usuário, se desejar
-                }
-                else
+                // Verificar se todos os campos foram preenchidos
+                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
-                    // Usuário não encontrado ou senha incorreta
-                    resposta.mensagem = "E-mail ou senha incorretos.";
+                    resposta.mensagem = "Todos os campos são obrigatórios.";
+                    return resposta;
                 }
+
+                // Verificar se o usuário existe
+                if (user == null)
+                {
+                    resposta.mensagem = "Este usuário não existe.";
+                    return resposta;
+                }
+
+                // Verificar se a senha está correta
+                if (user.Password != password)
+                {
+                    resposta.mensagem = "A senha está incorreta.";
+                    return resposta;
+                }
+
+                // Gerar token JWT com base no usuário autenticado
+                var token = TokenServices.GenericToken(user);
+
+                // Autenticação bem-sucedida
+                resposta.mensagem = "Usuário autenticado com sucesso.";
+                resposta.resposta = new { token }; // Retornar informações adicionais do usuário junto com o token
             }
             catch (System.Exception ex)
             {
