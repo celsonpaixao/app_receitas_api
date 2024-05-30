@@ -55,14 +55,14 @@ builder.Services.AddSwaggerGen(c =>
 
 
 // Configurar DbContext com a string de conexão carregada
-builder.Services.AddDbContext<AppReceitasDbContext>(options =>
+builder.Services.AddDbContext<ReceitasDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // Registrar repositórios
 builder.Services.AddTransient<IUser, UserRepository>();
-builder.Services.AddTransient<IReceitas, ReceitaRepository>();
-builder.Services.AddTransient<ICategoria, CategoriaRepository>();
-builder.Services.AddTransient<IAvaliacao, AvaliacaoRepository>();
+builder.Services.AddTransient<IRecipe, RecipeRepository>();
+builder.Services.AddTransient<ICategory, CategoryRepository>();
+builder.Services.AddTransient<IAvaluation, AvaluationRepository>();
 
 var key = Encoding.ASCII.GetBytes(Config.Secret);
 builder.Services.AddAuthentication(x =>

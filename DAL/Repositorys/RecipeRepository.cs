@@ -7,25 +7,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace app_receitas_api.DAL.Repositorys
 {
-    public class ReceitaRepository : IReceitas
+    public class RecipeRepository : IRecipe
     {
-        private readonly AppReceitasDbContext dbContext;
-        public ReceitaRepository(AppReceitasDbContext _dbContext)
+        private readonly ReceitasDbContext dbContext;
+        public RecipeRepository(ReceitasDbContext _dbContext)
         {
             dbContext = _dbContext;
         }
 
-        public Task<DTOResposta> AtualizarReceitas(int id_receita, ReceitaModel receita)
+        public Task<DTOResponse> Update_Recipe(int id_receita, RecipeModel receita)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<DTOResposta> ListarPorID(int id)
+        public async Task<DTOResponse> List_Recipe_By_ID(int id)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
-                var response = await dbContext.Tb_Receita
+                var query = await dbContext.Tb_Receita
                     .Where(receita => receita.Id == id)
                  .Select(receita => new
                  {
@@ -73,24 +73,24 @@ namespace app_receitas_api.DAL.Repositorys
                     .ToListAsync();
 
 
-                resposta.resposta = response;
-                resposta.mensagem = "Sucesso !";
+                response.response = query;
+                response.message = "Sucesso !";
             }
             catch (System.Exception e)
             {
 
-                resposta.mensagem = $"Alguma coisa de errado {e.Message}";
+                response.message = $"Alguma coisa de errado {e.Message}";
             }
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> ListarReceitas()
+        public async Task<DTOResponse> List_Recipe()
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
 
             try
             {
-                var response = await dbContext.Tb_Receita
+                var query = await dbContext.Tb_Receita
                     .Select(receita => new
                     {
                         receita.Id,
@@ -136,50 +136,48 @@ namespace app_receitas_api.DAL.Repositorys
                     })
                     .ToListAsync();
 
-                resposta.resposta = response;
-                resposta.mensagem = "Sucesso";
+                response.response = query;
+                response.message = "Sucesso";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Alguma coisa deu errado: {e.Message}";
+                response.message = $"Alguma coisa deu errado: {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
 
-
-
-        public async Task<DTOResposta> PagarReceita(int id)
+        public async Task<DTOResponse> Delete_Recipe(int id)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 var _receita = await dbContext.Tb_Receita.FirstOrDefaultAsync(r => r.Id == id);
                 if (_receita == null)
                 {
-                    resposta.mensagem = "Não encontramos nenhuma receita";
-                    return resposta;
+                    response.message = "Não encontramos nenhuma receita";
+                    return response;
                 }
 
                 dbContext.Tb_Receita.Remove(_receita);
                 await dbContext.SaveChangesAsync();
 
-                resposta.resposta = _receita;
-                resposta.mensagem = "Receita apagada com sucesso !";
+                response.response = _receita;
+                response.message = "Receita apagada com sucesso !";
 
             }
             catch (System.Exception e)
             {
 
-                resposta.mensagem = $"Alguma coisa deu errado {e.Message}";
+                response.message = $"Alguma coisa deu errado {e.Message}";
             }
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> PublicarReceitas(ReceitaModel receita)
+        public async Task<DTOResponse> Create_Recipe(RecipeModel receita)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             try
@@ -189,7 +187,7 @@ namespace app_receitas_api.DAL.Repositorys
 
                 foreach (var categoriaId in receita.Categorias)
                 {
-                    var receitaCategoria = new Receita_CategoriaModel
+                    var receitaCategoria = new Recipe_CategoryModel
                     {
                         Id_Categoria = categoriaId,
                         Id_Receita = receita.Id
@@ -200,16 +198,16 @@ namespace app_receitas_api.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                resposta.resposta = receita;
-                resposta.mensagem = "Receita publicada com sucesso!";
+                response.response = receita;
+                response.message = "Receita publicada com sucesso!";
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                resposta.mensagem = $"Alguma coisa deu errado: {e.Message}";
+                response.message = $"Alguma coisa deu errado: {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
     }

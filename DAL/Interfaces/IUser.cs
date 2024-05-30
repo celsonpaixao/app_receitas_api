@@ -9,11 +9,11 @@ namespace api_receita.DAL.Interfaces
 {
     public interface IUser
     {
-        Task<DTOResposta> CadastarUsuario(UserModel user);
-        Task<DTOResposta> AtualizarUsuario(int id_user,UserModel user);
-        Task<DTOResposta> DeletarUsuario(int id_user);
-        Task<DTOResposta> LogarUsuario(string email, string password);
-        Task<DTOResposta> ListarTodosUsuarios();
+        Task<DTOResponse> Create_User(UserModel user);
+        Task<DTOResponse> Update_User(int id_user,UserModel user);
+        Task<DTOResponse> Delete_User(int id_user);
+        Task<DTOResponse> Auth_User(string email, string password);
+        Task<DTOResponse> List_User();
 
        
     }

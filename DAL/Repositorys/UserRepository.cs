@@ -4,29 +4,30 @@ using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
 using app_receitas_api.Settings;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace api_receita.DAL.Repositorys
 {
     public class UserRepository : IUser
     {
-        private readonly AppReceitasDbContext dbContext;
+        private readonly ReceitasDbContext dbContext;
 
-        public UserRepository(AppReceitasDbContext _dbContext)
+        public UserRepository(ReceitasDbContext _dbContext)
         {
             dbContext = _dbContext;
         }
 
-        public async Task<DTOResposta> AtualizarUsuario(int id_user, UserModel userAtualizado)
+        public async Task<DTOResponse> Update_User(int id_user, UserModel userAtualizado)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
-                    resposta.mensagem = "Usuário não encontrado";
-                    return resposta;
+                    response.message = "Usuário não encontrado";
+                    return response;
                 }
 
                 // Atualiza os campos do usuário
@@ -38,21 +39,21 @@ namespace api_receita.DAL.Repositorys
                 dbContext.Tb_User.Update(user);
                 await dbContext.SaveChangesAsync();
 
-                resposta.resposta = user;
-                resposta.mensagem = "Usuário atualizado com sucesso";
+                response.response = user;
+                response.message = "Usuário atualizado com sucesso";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Erro ao atualizar usuário: {e.Message}";
+                response.message = $"Erro ao atualizar usuário: {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
 
-        public async Task<DTOResposta> CadastarUsuario(UserModel user)
+        public async Task<DTOResponse> Create_User(UserModel user)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
 
             try
             {
@@ -62,123 +63,128 @@ namespace api_receita.DAL.Repositorys
 
                 if (userExists)
                 {
-                    resposta.mensagem = "Usuário já existe com este email!";
-                    return resposta;
+                    response.message = "Usuário já existe com este email!";
+                    return response;
                 }
 
-                // Se não existe, adicionar novo usuário
-                UserModel newUser = user;
-                dbContext.Tb_User.Add(newUser);
+                // Hashear a senha
+                var passwordHasher = new PasswordHasher<UserModel>();
+                user.Password = passwordHasher.HashPassword(user, user.Password);
 
+                // Adicionar novo usuário
+                dbContext.Tb_User.Add(user);
                 await dbContext.SaveChangesAsync();
-                resposta.resposta = newUser;
-                resposta.mensagem = "Usuário cadastrado com sucesso!";
+
+                response.response = user;
+                response.message = "Usuário cadastrado com sucesso!";
             }
             catch (Exception e)
             {
-                resposta.mensagem = "Algo deu errado! " + e.Message;
-                
+                response.message = "Algo deu errado! " + e.Message;
             }
 
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> DeletarUsuario(int id_user)
+        public async Task<DTOResponse> Delete_User(int id_user)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
-                    resposta.mensagem = "Usuário não encontrado";
-                    return resposta;
+                    response.message = "User not find";
+                    return response;
                 }
 
                 dbContext.Tb_User.Remove(user);
                 await dbContext.SaveChangesAsync();
 
-                resposta.mensagem = "Usuário deletado com sucesso";
+                response.message = "User deleted sucess";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Erro ao deletar usuário: {e.Message}";
+                response.message = $" {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
 
-        public async Task<DTOResposta> ListarTodosUsuarios()
+        public async Task<DTOResponse> List_User()
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
 
             try
             {
-                var req =  from user in dbContext.Tb_User
+                var query = from user in dbContext.Tb_User
                           select new
                           {
                               user
                           };
 
-                resposta.resposta =  req;
-                resposta.mensagem = "Sucesso";
+                response.response = query;
+                response.message = "Sucess";
 
             }
             catch (System.Exception e)
             {
 
-                resposta.mensagem = "Algo deu errado! " + e.Message;
+                response.message = "Opps we have a problem " + e.Message;
                 Console.WriteLine(e.Message);
             }
 
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> LogarUsuario(string email, string password)
+        public async Task<DTOResponse> Auth_User(string email, string password)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
 
             try
             {
-                // Procurar o usuário pelo e-mail e senha no banco de dados
+                // Procurar o usuário pelo e-mail no banco de dados
                 var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
 
                 // Verificar se todos os campos foram preenchidos
                 if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
                 {
-                    resposta.mensagem = "Todos os campos são obrigatórios.";
-                    return resposta;
+                    response.message = "You needs send all informations about you";
+                    return response;
                 }
 
                 // Verificar se o usuário existe
                 if (user == null)
                 {
-                    resposta.mensagem = "Este usuário não existe.";
-                    return resposta;
+                    response.message = "This user not exists";
+                    return response;
                 }
 
                 // Verificar se a senha está correta
-                if (user.Password != password)
+                var passwordHasher = new PasswordHasher<UserModel>();
+                var result = passwordHasher.VerifyHashedPassword(user, user.Password, password);
+
+                if (result == PasswordVerificationResult.Failed)
                 {
-                    resposta.mensagem = "A senha está incorreta.";
-                    return resposta;
+                    response.message = "Password incorret";
+                    return response;
                 }
 
                 // Gerar token JWT com base no usuário autenticado
                 var token = TokenServices.GenericToken(user);
 
                 // Autenticação bem-sucedida
-                resposta.mensagem = "Usuário autenticado com sucesso.";
-                resposta.resposta = new { token }; // Retornar informações adicionais do usuário junto com o token
+                response.message = "User Auth sucess";
+                response.response = token; // Retornar informações adicionais do usuário junto com o token
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 // Lidar com exceções, se necessário
-                resposta.mensagem = $"Ocorreu um erro durante a autenticação: {ex.Message}";
+                response.message = $"Opps we have a problem {ex.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
 

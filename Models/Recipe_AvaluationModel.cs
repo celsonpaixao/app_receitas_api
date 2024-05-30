@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace api_receita.Models
 {
     [Table("tbl_avaliacao_receita")]
-    public class Receita_AvaliacaoModel
+    public class Recipe_AvaluationModel
     {
         [Column("id")]
         [Key]

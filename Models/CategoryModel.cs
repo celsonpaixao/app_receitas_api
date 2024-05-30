@@ -7,19 +7,15 @@ using System.Threading.Tasks;
 
 namespace api_receita.Models
 {
-    [Table("tbl_categoria_receita")]
-    public class Receita_CategoriaModel
+    [Table("tbl_categoria")]
+    public class CategoryModel
     {
         [Column("id")]
         [Key]
         public int Id { get; set; }
 
-        [Column("id_categoria")]
-        public int Id_Categoria { get; set; }
-
-        [Column("id_receita")]
-        public int Id_Receita { get; set; }
-
-
+        [Column("nome")]
+        [Required]
+        public string Name { get; set; }
     }
 }

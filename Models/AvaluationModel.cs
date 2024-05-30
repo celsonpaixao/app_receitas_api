@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace api_receita.Models
 {
     [Table("tbl_avaliacao")]
-    public class AvaliacaoModel
+    public class AvaluationModel
     {
         [Column("id")]
         [Key]

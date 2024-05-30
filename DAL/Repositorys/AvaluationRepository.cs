@@ -10,50 +10,50 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_receita.DAL.Repositorys
 {
-    public class AvaliacaoRepository : IAvaliacao
+    public class AvaluationRepository : IAvaluation
     {
-        private readonly AppReceitasDbContext dbContext;
+        private readonly ReceitasDbContext dbContext;
 
-        public AvaliacaoRepository(AppReceitasDbContext _dbContext)
+        public AvaluationRepository(ReceitasDbContext _dbContext)
         {
             dbContext = _dbContext;
         }
 
-        public async Task<DTOResposta> ApagarAvaliacao(int id_avaliacao)
+        public async Task<DTOResponse> Delete_Avaluation(int id_avaliacao)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 var avaliacao = await dbContext.Tb_Avaliacao.FindAsync(id_avaliacao);
                 if (avaliacao == null)
                 {
-                    resposta.mensagem = "Avaliação não encontrada";
-                    return resposta;
+                    response.message = "Avaluation not find";
+                    return response;
                 }
 
                 dbContext.Tb_Avaliacao.Remove(avaliacao);
                 await dbContext.SaveChangesAsync();
 
-                resposta.mensagem = "Avaliação apagada com sucesso";
+                response.message = "Avaluation deleted sucess";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Erro ao apagar avaliação: {e.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> AtualizarAvaliar(int id_avaliacao, AvaliacaoModel avaliacaoAtualizada)
+        public async Task<DTOResponse> Update_Avaluation(int id_avaliacao, AvaluationModel avaliacaoAtualizada)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 var avaliacao = await dbContext.Tb_Avaliacao.FindAsync(id_avaliacao);
                 if (avaliacao == null)
                 {
-                    resposta.mensagem = "Avaliação não encontrada";
-                    return resposta;
+                    response.message = "Avaluation not find";
+                    return response;
                 }
 
                 avaliacao.Value = avaliacaoAtualizada.Value;
@@ -62,20 +62,20 @@ namespace api_receita.DAL.Repositorys
                 dbContext.Tb_Avaliacao.Update(avaliacao);
                 await dbContext.SaveChangesAsync();
 
-                resposta.resposta = avaliacao;
-                resposta.mensagem = "Avaliação atualizada com sucesso";
+                response.response = avaliacao;
+                response.message = "Avaluation updated sucess";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Erro ao atualizar avaliação: {e.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
-        public async Task<DTOResposta> CadastrarAvaliar(int id_receita, int id_user, AvaliacaoModel avaliacao)
+        public async Task<DTOResponse> Create_Avaluation(int id_receita, int id_user, AvaluationModel avaliacao)
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
             try
             {
                 // Verifica se a receita existe
@@ -83,16 +83,16 @@ namespace api_receita.DAL.Repositorys
 
                 if (receita == null)
                 {
-                    resposta.mensagem = "Receita não encontrada";
-                    return resposta;
+                    response.message = "Recipe not find";
+                    return response;
                 }
 
                 // Verifica se o usuário existe
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
-                    resposta.mensagem = "Usuário não encontrado";
-                    return resposta;
+                    response.message = "User not find";
+                    return response;
                 }
 
                 // Associa a avaliação ao usuário
@@ -103,7 +103,7 @@ namespace api_receita.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
 
                 // Cria a entrada na tabela associativa
-                var receitaAvaliacao = new Receita_AvaliacaoModel
+                var receitaAvaliacao = new Recipe_AvaluationModel
                 {
                     Id_Avaliacao = avaliacao.Id, // Assume que a avaliação tem um Id gerado automaticamente
                     Id_Receita = id_receita
@@ -112,26 +112,26 @@ namespace api_receita.DAL.Repositorys
                 dbContext.Tb_Receita_Avaliacao.Add(receitaAvaliacao);
                 await dbContext.SaveChangesAsync();
 
-                resposta.resposta = avaliacao;
-                resposta.mensagem = "Avaliação cadastrada com sucesso";
+                response.response = avaliacao;
+                response.message = "Create Avaluation sucess";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Erro ao cadastrar avaliação: {e.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
 
 
 
-        public async Task<DTOResposta> ListarAvaliacao()
+        public async Task<DTOResponse> List_Avaluation()
         {
-            DTOResposta resposta = new DTOResposta();
+            DTOResponse response = new DTOResponse();
 
             try
             {
-                var response = await dbContext.Tb_Avaliacao
+                var query = await dbContext.Tb_Avaliacao
                     .Select(avaliacao => new
                     {
                         avaliacao.Id,
@@ -150,15 +150,15 @@ namespace api_receita.DAL.Repositorys
                     })
                     .ToListAsync();
 
-                resposta.resposta = response;
-                resposta.mensagem = "Sucesso";
+                response.response = query;
+                response.message = "Sucess";
             }
             catch (Exception e)
             {
-                resposta.mensagem = $"Alguma coisa deu errado: {e.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
-            return resposta;
+            return response;
         }
     }
 }

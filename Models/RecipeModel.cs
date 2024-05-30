@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace app_receitas_api.Models
 {
     [Table("tbl_receita")]
-    public class ReceitaModel
+    public class RecipeModel
     {
         [Key]
         [Column("id")]
@@ -23,11 +23,11 @@ namespace app_receitas_api.Models
 
         [Column("ingredients")]
         [Required]
-        public string Ingredients { get; set; }
-
+        public List<string> Ingredients { get; set; }
+        
         [Column("materials")]
         [Required]
-        public string Materials { get; set; }
+        public List<string> Materials { get; set; }
 
         [Column("instructions")]
         [Required]
