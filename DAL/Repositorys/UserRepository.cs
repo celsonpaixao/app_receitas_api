@@ -13,9 +13,11 @@ namespace api_receita.DAL.Repositorys
     {
         private readonly ReceitasDbContext dbContext;
 
+
         public UserRepository(ReceitasDbContext _dbContext)
         {
             dbContext = _dbContext;
+
         }
 
         public async Task<DTOResponse> Update_User(int id_user, UserModel userAtualizado)
@@ -70,6 +72,16 @@ namespace api_receita.DAL.Repositorys
                 // Hashear a senha
                 var passwordHasher = new PasswordHasher<UserModel>();
                 user.Password = passwordHasher.HashPassword(user, user.Password);
+                if (user.ImageURL != null)
+                {
+                    var filepath = Path.Combine("Uploads" + user.ImageURL.FileName);
+                    using Stream fileStream = new FileStream(filepath, FileMode.Create);
+                 
+                }
+                else
+                {
+                    user.ImageURL = null;
+                }
 
                 // Adicionar novo usuário
                 dbContext.Tb_User.Add(user);
@@ -80,7 +92,7 @@ namespace api_receita.DAL.Repositorys
             }
             catch (Exception e)
             {
-                response.message = "Algo deu errado! " + e.Message;
+                response.message = "Opps we have a problem! " + e.Message;
             }
 
             return response;
@@ -105,7 +117,7 @@ namespace api_receita.DAL.Repositorys
             }
             catch (Exception e)
             {
-                response.message = $" {e.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
             return response;
@@ -119,10 +131,10 @@ namespace api_receita.DAL.Repositorys
             try
             {
                 var query = from user in dbContext.Tb_User
-                          select new
-                          {
-                              user
-                          };
+                            select new
+                            {
+                                user
+                            };
 
                 response.response = query;
                 response.message = "Sucess";
@@ -148,9 +160,14 @@ namespace api_receita.DAL.Repositorys
                 var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
 
                 // Verificar se todos os campos foram preenchidos
-                if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+                if (string.IsNullOrEmpty(email))
                 {
-                    response.message = "You needs send all informations about you";
+                    response.message = "You needs send your email !";
+                    return response;
+                }
+                if (string.IsNullOrEmpty(password))
+                {
+                    response.message = "You needs send your password! ";
                     return response;
                 }
 
@@ -178,10 +195,10 @@ namespace api_receita.DAL.Repositorys
                 response.message = "User Auth sucess";
                 response.response = token; // Retornar informações adicionais do usuário junto com o token
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 // Lidar com exceções, se necessário
-                response.message = $"Opps we have a problem {ex.Message}";
+                response.message = $"Opps we have a problem {e.Message}";
             }
 
             return response;

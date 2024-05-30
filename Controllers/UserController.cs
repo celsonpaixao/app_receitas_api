@@ -19,22 +19,6 @@ namespace api_receita.Controllers
 
         public async Task<ActionResult<DTOResponse>> CadastrarUsuario([FromForm] UserModel user)
         {
-            if (user.ImagePash != null)
-            {
-                var imgDirectory = Path.Combine("Uploads", "User_Avatar");
-                var imgPath = Path.Combine(imgDirectory, user.ImagePash.FileName);
-
-                // Ensure the directory exists
-                Directory.CreateDirectory(imgDirectory);
-
-                using (var fileStream = new FileStream(imgPath, FileMode.Create))
-                {
-                    await user.ImagePash.CopyToAsync(fileStream);
-                }
-
-                // Set the image path to the user object
-                user.ImageURL = imgPath;
-            }
 
             var resposta = userServices.Create_User(user);
             return Ok(await resposta);
