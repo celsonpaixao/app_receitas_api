@@ -19,10 +19,10 @@ namespace app_receitas_api.Settings
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]{
                     new Claim("userid", user.Id.ToString()),
                     new Claim("useremial", user.Email.ToString()),
-                    new Claim("username", user.Primeiro_Name.ToString() + "" + user.Ultimo_Name.ToString()),
+                    new Claim("username", user. First_Name.ToString() + "" + user.Last_Name.ToString()),
                     
                 }),
-                Expires = DateTime.UtcNow.AddHours(3),
+                Expires = DateTime.UtcNow.AddDays(360),
 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };

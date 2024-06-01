@@ -1,14 +1,13 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace app_receitas_api.Models
 {
-    [Table("tbl_receita")]
-    public class ReceitaModel
+    [Table("recipes")]
+    public class RecipeModel
     {
         [Key]
         [Column("id")]
@@ -22,26 +21,25 @@ namespace app_receitas_api.Models
         [Required]
         public string Description { get; set; }
 
-        [Column("ingredients")]
-        [Required]
-        public string Ingredients { get; set; }
-
-        [Column("materials")]
-        [Required]
-        public string Materials { get; set; }
-
         [Column("instructions")]
         [Required]
         public string Instructions { get; set; }
 
-        [Column("image_url")]
-        [Required]
-        public string ImageURL { get; set; }
 
-        [Column("id_user")]
+        [Column("image_url")]
+        public string? ImageURL { get; set; }
+
+        [Column("user_id")]
         [Required]
         public int UserId { get; set; }
 
+        [NotMapped]
+        public List<int> Categorias { get; set; } = new List<int>();
 
+        [NotMapped]
+        public List<string> Ingredients { get; set; } = new List<string>();
+
+        [NotMapped]
+        public List<string> Materials { get; set; } = new List<string>();
     }
 }

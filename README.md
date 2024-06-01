@@ -1,54 +1,159 @@
 # app_receitas_api
 
 ## Script DB
-CREATE TABLE IF NOT EXISTS Tbl_User (
+CREATE TABLE IF NOT EXISTS Users (
     id SERIAL PRIMARY KEY,
-    primeiro_nome TEXT NOT NULL,
-    ultimo_nome TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     email TEXT NOT NULL,
     password TEXT NOT NULL,
     image_url TEXT
 );
 
-CREATE TABLE IF NOT EXISTS Tbl_Categoria (
+CREATE TABLE IF NOT EXISTS Categories (
     id SERIAL PRIMARY KEY,
-    nome TEXT NOT NULL
+    name TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Tbl_Avaliacao (
-    id SERIAL PRIMARY KEY,
-    value INT NOT NULL,
-    id_user INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Tbl_User(id)
-);
-
-CREATE TABLE IF NOT EXISTS Tbl_Receita (
+CREATE TABLE IF NOT EXISTS Recipes (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    ingredients TEXT NOT NULL,
-    materials TEXT NOT NULL,
     instructions TEXT NOT NULL,
     image_url TEXT NOT NULL,
-    id_user INT NOT NULL,
-    FOREIGN KEY (id_user) REFERENCES Tbl_User(id)
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Tbl_Categoria_Receita (
+CREATE TABLE IF NOT EXISTS Ingredients (
     id SERIAL PRIMARY KEY,
-    id_categoria INT NOT NULL,
-    id_receita INT NOT NULL,
-    FOREIGN KEY (id_categoria) REFERENCES Tbl_Categoria(id),
-    FOREIGN KEY (id_receita) REFERENCES Tbl_Receita(id)
+    name TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Tbl_Avaliacao_Receita (
+CREATE TABLE IF NOT EXISTS Materials (
     id SERIAL PRIMARY KEY,
-    id_avaliacao INT NOT NULL,
-    id_receita INT NOT NULL,
-    FOREIGN KEY (id_avaliacao) REFERENCES Tbl_Avaliacao(id),
-    FOREIGN KEY (id_receita) REFERENCES Tbl_Receita(id)
+    name TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS Favorites (
+    id SERIAL PRIMARY KEY,
+    recipe_id INT NOT NULL unique,
+    user_id INT NOT NULL,
+    FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Ratings (
+    id SERIAL PRIMARY KEY,
+    value REAL NOT NULL,
+    message TEXT,
+    user_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Ingredients_Recipe (
+    id SERIAL PRIMARY KEY,
+    ingredient_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    FOREIGN KEY ( ingredient_id) REFERENCES Ingredients(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Materials_Recipe (
+    id SERIAL PRIMARY KEY,
+    material_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    FOREIGN KEY ( material_id) REFERENCES Materials(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE IF NOT EXISTS Category_Recipe (
+    id SERIAL PRIMARY KEY,
+    category_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES Categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE IF NOT EXISTS Rating_Recipe (
+    id SERIAL PRIMARY KEY,
+    rating_id INT NOT NULL,
+    recipe_id INT NOT NULL,
+    FOREIGN KEY (rating_id) REFERENCES Ratings(id) ON DELETE CASCADE,
+    FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE
+);
+
+
+INSERT INTO categories (name) VALUES 
+('Aperitivos e Entradas'),
+('Saladas'),
+('Sopas'),
+('Pratos Principais'),
+('Massas'),
+('Risotos'),
+('Carnes'),
+('Aves'),
+('Peixes'),
+('Frutos do Mar'),
+('Vegetariano'),
+('Vegano'),
+('Sobremesas'),
+('Bebidas'),
+('Café da Manhã'),
+('Lanches'),
+('Pães e Bolos'),
+('Molhos e Condimentos'),
+('Comida Rápida'),
+('Comida Saudável'),
+('Comida de Festa'),
+('Comida Confortável'),
+('Culinária Italiana'),
+('Culinária Japonesa'),
+('Culinária Mexicana'),
+('Culinária Indiana'),
+('Culinária Tailandesa'),
+('Culinária Francesa'),
+('Culinária Chinesa'),
+('Culinária Brasileira');
+
+select *from Recipes;
+
+## Categorias 
+INSERT INTO categories (name) VALUES 
+('Aperitivos e Entradas'),
+('Saladas'),
+('Sopas'),
+('Pratos Principais'),
+('Massas'),
+('Risotos'),
+('Carnes'),
+('Aves'),
+('Peixes'),
+('Frutos do Mar'),
+('Vegetariano'),
+('Vegano'),
+('Sobremesas'),
+('Bebidas'),
+('Café da Manhã'),
+('Lanches'),
+('Pães e Bolos'),
+('Molhos e Condimentos'),
+('Comida Rápida'),
+('Comida Saudável'),
+('Comida de Festa'),
+('Comida Confortável'),
+('Culinária Italiana'),
+('Culinária Japonesa'),
+('Culinária Mexicana'),
+('Culinária Indiana'),
+('Culinária Tailandesa'),
+('Culinária Francesa'),
+('Culinária Chinesa'),
+('Culinária Brasileira');
+
 
 ## DotENV COnnection String
 
