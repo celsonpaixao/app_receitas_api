@@ -89,11 +89,8 @@ builder.Services.AddAuthentication(x =>
 var app = builder.Build();
 
 // Configurar o pipeline de requisição HTTP
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
