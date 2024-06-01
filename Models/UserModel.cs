@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace api_receita.Models
 {
-
-    [Table("tbl_user")]
+    [Table("users")]
     public class UserModel
     {
         [Column("id")]
@@ -12,24 +11,23 @@ namespace api_receita.Models
         public int Id { get; set; }
 
         [Required]
-        [Column("primeiro_nome")]
-        public string Primeiro_Name { get; set; }
+        [Column("first_name")]
+        public string First_Name { get; set; }
 
         [Required]
-        [Column("ultimo_nome")]
-        public string Ultimo_Name { get; set; }
+        [Column("last_name")]
+        public string Last_Name { get; set; }
 
+        [Required]
         [Column("email")]
-        [Required]
         public string Email { get; set; }
 
         [Required]
         [Column("password")]
         public string Password { get; set; }
 
+      
         [Column("image_url")]
         public string? ImageURL { get; set; }
-
-
     }
 }

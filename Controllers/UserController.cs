@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_receita.Controllers
@@ -18,19 +15,46 @@ namespace api_receita.Controllers
         {
             userServices = _user;
         }
-        [HttpPost("Cagastrar_User")]
+        [HttpPost("register_user")]
 
-        public async Task<ActionResult<DTOResposta>> CadastrarUsuario(UserModel user)
+        public async Task<ActionResult<DTOResponse>> CadastrarUsuario([FromForm] UserModel user, IFormFile? image, string confirmpassword)
         {
 
-            return Ok(await userServices.CadastarUsuario(user));
+            var resposta = userServices.Create_User(user, image,  confirmpassword);
+            return Ok(await resposta);
+        }
+        // [Authorize]
+        [HttpPost("auth_user")]
+
+        public async Task<ActionResult<DTOResponse>> LogarUsuario(string email, string password)
+        {
+            var resposta = userServices.Auth_User(email, password);
+            return Ok(await resposta);
         }
 
-        [HttpGet("Listar_Todos_Usuarios")]
+        [HttpGet("list_all_user")]
 
-        public async Task<ActionResult<DTOResposta>> ListarTodosUsers()
+        public async Task<ActionResult<DTOResponse>> ListarTodosUsers()
         {
-            return Ok(await userServices.ListarTodosUsuarios());
+            return Ok(await userServices.List_User());
+        }
+        [Authorize]
+        [HttpPut("update_user")]
+        public async Task<ActionResult<DTOResponse>> AtualizarUsuario([FromForm] UserModel user, IFormFile? image, int id, string confirmpassword)
+        {
+            var resposta = await userServices.Update_User(id, user, image, confirmpassword);
+
+            return Ok(resposta);
+        }
+        [Authorize]
+        [HttpDelete("delete_user")]
+
+
+        public async Task<ActionResult<DTOResponse>> DeletarUsuario(int id_user)
+        {
+            var resposta = await userServices.Delete_User(id_user);
+
+            return Ok(resposta);
         }
     }
 }
