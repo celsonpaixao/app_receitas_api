@@ -7,7 +7,7 @@ EXPOSE 443
 # Etapa build
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["api_receita/api_receita.csproj", "api_receita/"]
+COPY ["api_receita.csproj", "api_receita/"]
 RUN dotnet restore "api_receita/api_receita.csproj"
 COPY . .
 WORKDIR "/src/api_receita"
