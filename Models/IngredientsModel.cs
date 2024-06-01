@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace api_receita.Models
 {
-    [Table("categories")]
-    public class CategoryModel
+    [Table("ingredients")]
+    public class IngredientsModel
     {
         [Column("id")]
         [Key]

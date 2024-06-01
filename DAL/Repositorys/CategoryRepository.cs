@@ -28,7 +28,7 @@ namespace api_receita.DAL.Repositorys
                 var _categoria = await dbContext.Tb_Categoria.FirstOrDefaultAsync(c => c.Id == id);
                 if (_categoria == null)
                 {
-                    response.message = "Category not find!";
+                    response.message = "Category not found!";
                     return response;
                 }
 
@@ -40,7 +40,7 @@ namespace api_receita.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
 
                 response.response = _categoria;
-                response.message = "Category updat sucess!";
+                response.message = "Category updated successfully!";
             }
             catch (System.Exception e)
             {
@@ -79,7 +79,7 @@ namespace api_receita.DAL.Repositorys
                 var _categoria = await dbContext.Tb_Categoria.FirstOrDefaultAsync(c => c.Id == id);
                 if (_categoria == null)
                 {
-                    response.message = "Category not find !";
+                    response.message = "Category not found !";
                 }
                 dbContext.Tb_Categoria.Remove(_categoria);
                 await dbContext.SaveChangesAsync();

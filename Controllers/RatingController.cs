@@ -8,11 +8,11 @@ namespace api_receita.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AvaluationController : ControllerBase
+    public class RatingController : ControllerBase
     {
-        private readonly IAvaluation avaliacao;
+        private readonly IRating avaliacao;
 
-        public AvaluationController(IAvaluation _avaliacao)
+        public RatingController(IRating _avaliacao)
         {
             avaliacao = _avaliacao;
         }
@@ -22,7 +22,7 @@ namespace api_receita.Controllers
 
         public async Task<ActionResult<DTOResponse>> ListarTodasAvaliacoes()
         {
-            var resposta = await avaliacao.List_Avaluation();
+            var resposta = await avaliacao.List_Rating();
 
             return Ok(resposta);
         }
@@ -30,9 +30,9 @@ namespace api_receita.Controllers
         [HttpPost("public_avaliaction")]
         [Authorize]
 
-        public async Task<ActionResult<DTOResponse>> AvaliarReceita(int id_receita, int id_user, AvaluationModel _avaliacao)
+        public async Task<ActionResult<DTOResponse>> AvaliarReceita(int id_receita, int id_user, RatingModel _avaliacao)
         {
-            var resposta = await avaliacao.Create_Avaluation(id_receita, id_user, _avaliacao);
+            var resposta = await avaliacao.Create_Rating(id_receita, id_user, _avaliacao);
 
             return Ok(resposta);
         }
@@ -41,16 +41,16 @@ namespace api_receita.Controllers
         [Authorize]
         public async Task<ActionResult<DTOResponse>> ApagarReceita(int id)
         {
-            var resposta = await avaliacao.Delete_Avaluation(id);
+            var resposta = await avaliacao.Delete_Rating(id);
             return Ok(resposta);
         }
 
         [HttpPut("update_avaliaction")]
         [Authorize]
 
-        public async Task<ActionResult<DTOResponse>> AtualizarAvaliar(int id_avaliacao, AvaluationModel avaliacaoAtualizada)
+        public async Task<ActionResult<DTOResponse>> AtualizarAvaliar(int id_avaliacao, RatingModel avaliacaoAtualizada)
         {
-            var resposta = await avaliacao.Update_Avaluation(id_avaliacao, avaliacaoAtualizada);
+            var resposta = await avaliacao.Update_Rating(id_avaliacao, avaliacaoAtualizada);
             return Ok(resposta);
         }
 

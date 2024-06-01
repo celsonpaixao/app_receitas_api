@@ -6,6 +6,7 @@ using api_receita.Models;
 using app_receitas_api.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
 
 namespace api_receita.DAL.Repositorys
 {
@@ -19,64 +20,58 @@ namespace api_receita.DAL.Repositorys
             dbContext = _dbContext;
 
         }
-
-        public async Task<DTOResponse> Update_User(int id_user, UserModel userAtualizado)
+        public async Task<DTOResponse> Create_User(UserModel user, IFormFile? image, string confirmpassword)
         {
             DTOResponse response = new DTOResponse();
+
             try
             {
-                var user = await dbContext.Tb_User.FindAsync(id_user);
-                if (user == null)
+                // Validar se o email é válido
+                var emailAttribute = new EmailAddressAttribute();
+                if (!emailAttribute.IsValid(user.Email))
                 {
-                    response.message = "Usuário não encontrado";
+                    response.message = "Invalid email format!";
                     return response;
                 }
 
-                // Atualiza os campos do usuário
-                user.Primeiro_Name = userAtualizado.Primeiro_Name;
-                user.Ultimo_Name = userAtualizado.Ultimo_Name;
-                user.Email = userAtualizado.Email;
-                user.Password = userAtualizado.Password;
-
-                dbContext.Tb_User.Update(user);
-                await dbContext.SaveChangesAsync();
-
-                response.response = user;
-                response.message = "Usuário atualizado com sucesso";
-            }
-            catch (Exception e)
-            {
-                response.message = $"Erro ao atualizar usuário: {e.Message}";
-            }
-
-            return response;
-        }
-
-
-        public async Task<DTOResponse> Create_User(UserModel user)
-        {
-            DTOResponse response = new DTOResponse();
-
-            try
-            {
                 // Verificar se o usuário já existe
                 bool userExists = await dbContext.Tb_User
                     .AnyAsync(u => u.Email == user.Email);
 
                 if (userExists)
                 {
-                    response.message = "Usuário já existe com este email!";
+                    response.message = "User already exists with this email!";
+                    return response;
+                }
+
+                // Verificar se a senha e a confirmação da senha correspondem
+                if (user.Password != confirmpassword)
+                {
+                    response.message = "Password and password confirmation do not match!";
                     return response;
                 }
 
                 // Hashear a senha
                 var passwordHasher = new PasswordHasher<UserModel>();
                 user.Password = passwordHasher.HashPassword(user, user.Password);
-                if (user.ImageURL != null)
+
+                // Salvar a imagem, se fornecida
+                if (image != null && image.Length > 0)
                 {
-                    var filepath = Path.Combine("Uploads" + user.ImageURL.FileName);
-                    using Stream fileStream = new FileStream(filepath, FileMode.Create);
-                 
+                    var uploadsFolder = Path.Combine("Uploads", "Users");
+                    var fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(image.FileName);
+                    var filePath = Path.Combine(uploadsFolder, fileName);
+
+                    // Criar o diretório se não existir
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await image.CopyToAsync(fileStream);
+                    }
+
+                    // Atualizar o caminho da imagem do usuário
+                    user.ImageURL = Path.Combine("Users", fileName);
                 }
                 else
                 {
@@ -88,7 +83,7 @@ namespace api_receita.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
 
                 response.response = user;
-                response.message = "Usuário cadastrado com sucesso!";
+                response.message = "User registered successfully!";
             }
             catch (Exception e)
             {
@@ -98,6 +93,92 @@ namespace api_receita.DAL.Repositorys
             return response;
         }
 
+
+        public async Task<DTOResponse> Update_User(int id_user, UserModel userAtualizado, IFormFile? newImage, string confirmpassword)
+        {
+            DTOResponse response = new DTOResponse();
+            try
+            {
+
+                var user = await dbContext.Tb_User.FindAsync(id_user);
+                if (user == null)
+                {
+                    response.message = "User not found";
+                    return response;
+                }
+
+                // Validar se o email é válido
+                var emailAttribute = new EmailAddressAttribute();
+                if (!emailAttribute.IsValid(userAtualizado.Email))
+                {
+                    response.message = "Invalid email format!";
+                    return response;
+                }
+
+                // Verificar se a senha e a confirmação da senha correspondem
+                if (!string.IsNullOrEmpty(userAtualizado.Password) && userAtualizado.Password != confirmpassword)
+                {
+                    response.message = "Password and password confirmation do not match!";
+                    return response;
+                }
+
+                // Atualiza os campos do usuário
+                user.First_Name = userAtualizado.First_Name;
+                user.Last_Name = userAtualizado.Last_Name;
+                user.Email = userAtualizado.Email;
+
+                // Verifica se uma nova senha foi fornecida e a criptografa
+                if (!string.IsNullOrEmpty(userAtualizado.Password))
+                {
+                    var passwordHasher = new PasswordHasher<UserModel>();
+                    user.Password = passwordHasher.HashPassword(user, userAtualizado.Password);
+                }
+
+                // Se uma nova imagem for fornecida
+                if (newImage != null && newImage.Length > 0)
+                {
+                    // Se o usuário já tiver uma imagem, exclua-a
+                    if (!string.IsNullOrEmpty(user.ImageURL))
+                    {
+                        var imagePath = Path.Combine("Uploads", user.ImageURL);
+                        if (File.Exists(imagePath))
+                        {
+                            File.Delete(imagePath);
+                        }
+                    }
+
+                    // Salva a nova imagem
+                    var uploadsFolder = Path.Combine("Uploads", "Users");
+                    var uniqueFileName = DateTime.Now.Ticks + Path.GetExtension(newImage.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Criar o diretório se não existir
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await newImage.CopyToAsync(fileStream);
+                    }
+
+                    // Atualiza o caminho da imagem do usuário
+                    user.ImageURL = Path.Combine(uploadsFolder, uniqueFileName);
+                }
+
+                dbContext.Tb_User.Update(user);
+                await dbContext.SaveChangesAsync();
+
+                response.response = user;
+                response.message = "User Updating successfully!";
+            }
+            catch (Exception e)
+            {
+                response.message = $"Opps we have a problem: {e.Message}";
+            }
+
+            return response;
+        }
+
+
         public async Task<DTOResponse> Delete_User(int id_user)
         {
             DTOResponse response = new DTOResponse();
@@ -106,14 +187,25 @@ namespace api_receita.DAL.Repositorys
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
-                    response.message = "User not find";
+                    response.message = "User not found";
                     return response;
+                }
+
+                // Verificar se o usuário tem uma imagem associada
+                if (!string.IsNullOrEmpty(user.ImageURL))
+                {
+                    // Excluir a imagem do sistema de arquivos
+                    var imagePath = Path.Combine("Uploads", user.ImageURL);
+                    if (File.Exists(imagePath))
+                    {
+                        File.Delete(imagePath);
+                    }
                 }
 
                 dbContext.Tb_User.Remove(user);
                 await dbContext.SaveChangesAsync();
 
-                response.message = "User deleted sucess";
+                response.message = "User deleted successfully";
             }
             catch (Exception e)
             {
@@ -156,25 +248,33 @@ namespace api_receita.DAL.Repositorys
 
             try
             {
+                // Validar se o email é válido
+                var emailAttribute = new EmailAddressAttribute();
+                if (!emailAttribute.IsValid(email))
+                {
+                    response.message = "Invalid email format!";
+                    return response;
+                }
+
                 // Procurar o usuário pelo e-mail no banco de dados
                 var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
 
                 // Verificar se todos os campos foram preenchidos
                 if (string.IsNullOrEmpty(email))
                 {
-                    response.message = "You needs send your email !";
+                    response.message = "You need to provide your email !";
                     return response;
                 }
                 if (string.IsNullOrEmpty(password))
                 {
-                    response.message = "You needs send your password! ";
+                    response.message = "You need to enter the password !";
                     return response;
                 }
 
                 // Verificar se o usuário existe
                 if (user == null)
                 {
-                    response.message = "This user not exists";
+                    response.message = "This user does not exist";
                     return response;
                 }
 

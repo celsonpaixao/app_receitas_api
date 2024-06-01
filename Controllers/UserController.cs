@@ -17,10 +17,10 @@ namespace api_receita.Controllers
         }
         [HttpPost("register_user")]
 
-        public async Task<ActionResult<DTOResponse>> CadastrarUsuario([FromForm] UserModel user)
+        public async Task<ActionResult<DTOResponse>> CadastrarUsuario([FromForm] UserModel user, IFormFile? image, string confirmpassword)
         {
 
-            var resposta = userServices.Create_User(user);
+            var resposta = userServices.Create_User(user, image,  confirmpassword);
             return Ok(await resposta);
         }
         // [Authorize]
@@ -40,11 +40,9 @@ namespace api_receita.Controllers
         }
         [Authorize]
         [HttpPut("update_user")]
-
-
-        public async Task<ActionResult<DTOResponse>> AtualizarUsuario(int id_user, UserModel user)
+        public async Task<ActionResult<DTOResponse>> AtualizarUsuario([FromForm] UserModel user, IFormFile? image, int id, string confirmpassword)
         {
-            var resposta = await userServices.Update_User(id_user, user);
+            var resposta = await userServices.Update_User(id, user, image, confirmpassword);
 
             return Ok(resposta);
         }

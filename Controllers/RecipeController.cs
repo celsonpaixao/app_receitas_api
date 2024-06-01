@@ -15,45 +15,17 @@ namespace app_receitas_api.Controllers
         {
             receitas = _receitas;
         }
-        [Authorize]
+        // [Authorize]
         [HttpPost("create_recipe")]
 
-        public async Task<ActionResult<DTOResponse>> Create([FromForm] RecipeModel receita)
+        public async Task<ActionResult<DTOResponse>> Create([FromForm] RecipeModel receita, IFormFile image)
         {
-            DTOResponse response = new DTOResponse();
-
-            try
-            {
-                if (receita.ImagePash != null)
-                {
-                    var imgDirectory = Path.Combine("Uploads", "Receita_Img");
-                    if (!Directory.Exists(imgDirectory))
-                    {
-                        Directory.CreateDirectory(imgDirectory);
-                    }
-
-                    var imgPath = Path.Combine(imgDirectory, receita.ImagePash.FileName);
-
-                    using (var fileStream = new FileStream(imgPath, FileMode.Create))
-                    {
-                        await receita.ImagePash.CopyToAsync(fileStream);
-                    }
-
-                    receita.ImageURL = imgPath; // Atualizando o caminho da imagem no modelo
-                }
-
-                response = await receitas.Create_Recipe(receita);
-                response.message = "Recipe create sucess!";
-            }
-            catch (Exception ex)
-            {
-                response.message = $"Opps we have a problem {ex.Message}";
-            }
+            var response = await receitas.Create_Recipe(receita, image);
 
             return Ok(response);
         }
 
-        [Authorize]
+        // [Authorize]
         [HttpGet("list_all_recipe")]
 
         public async Task<ActionResult<DTOResponse>> ListarTodasReceitas()
@@ -61,7 +33,7 @@ namespace app_receitas_api.Controllers
             var response = receitas.List_Recipe();
             return Ok(await response);
         }
-        [Authorize]
+        // [Authorize]
         [HttpGet("list_by_recipe_id")]
 
         // [Authorize]
@@ -79,14 +51,13 @@ namespace app_receitas_api.Controllers
             var response = receitas.Delete_Recipe(id);
             return Ok(await response);
         }
-        [Authorize]
+        // [Authorize]
         [HttpPut("update_recipe")]
 
 
-        public async Task<ActionResult<DTOResponse>> AtualizarReceita(int id_receita, RecipeModel receita)
+        public async Task<ActionResult<DTOResponse>> AtualizarReceita([FromForm] int id_receita, [FromForm] RecipeModel receita,  IFormFile? image)
         {
-            var response = await receitas.Update_Recipe(id_receita, receita);
-
+            var response = await receitas.Update_Recipe(id_receita, receita, image);
             return Ok(response);
         }
     }

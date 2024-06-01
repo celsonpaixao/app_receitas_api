@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace app_receitas_api.Models
 {
-    [Table("tbl_receita")]
+    [Table("recipes")]
     public class RecipeModel
     {
         [Key]
@@ -21,31 +21,25 @@ namespace app_receitas_api.Models
         [Required]
         public string Description { get; set; }
 
-        [Column("ingredients")]
-        [Required]
-        public List<string> Ingredients { get; set; }
-        
-        [Column("materials")]
-        [Required]
-        public List<string> Materials { get; set; }
-
         [Column("instructions")]
         [Required]
         public string Instructions { get; set; }
 
-        [NotMapped]
-        [JsonIgnore]
-        [Required]
-        public IFormFile ImagePash { get; set; }
 
         [Column("image_url")]
         public string? ImageURL { get; set; }
 
-        [Column("id_user")]
+        [Column("user_id")]
         [Required]
         public int UserId { get; set; }
 
         [NotMapped]
         public List<int> Categorias { get; set; } = new List<int>();
+
+        [NotMapped]
+        public List<string> Ingredients { get; set; } = new List<string>();
+
+        [NotMapped]
+        public List<string> Materials { get; set; } = new List<string>();
     }
 }

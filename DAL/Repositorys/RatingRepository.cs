@@ -1,4 +1,4 @@
-using System;
+ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,16 +10,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace api_receita.DAL.Repositorys
 {
-    public class AvaluationRepository : IAvaluation
+    public class RatingRepository : IRating
     {
         private readonly ReceitasDbContext dbContext;
 
-        public AvaluationRepository(ReceitasDbContext _dbContext)
+        public RatingRepository(ReceitasDbContext _dbContext)
         {
             dbContext = _dbContext;
         }
 
-        public async Task<DTOResponse> Delete_Avaluation(int id_avaliacao)
+        public async Task<DTOResponse> Delete_Rating(int id_avaliacao)
         {
             DTOResponse response = new DTOResponse();
             try
@@ -27,7 +27,7 @@ namespace api_receita.DAL.Repositorys
                 var avaliacao = await dbContext.Tb_Avaliacao.FindAsync(id_avaliacao);
                 if (avaliacao == null)
                 {
-                    response.message = "Avaluation not find";
+                    response.message = "Avaluation not found";
                     return response;
                 }
 
@@ -44,7 +44,7 @@ namespace api_receita.DAL.Repositorys
             return response;
         }
 
-        public async Task<DTOResponse> Update_Avaluation(int id_avaliacao, AvaluationModel avaliacaoAtualizada)
+        public async Task<DTOResponse> Update_Rating(int id_avaliacao, RatingModel avaliacaoAtualizada)
         {
             DTOResponse response = new DTOResponse();
             try
@@ -52,7 +52,7 @@ namespace api_receita.DAL.Repositorys
                 var avaliacao = await dbContext.Tb_Avaliacao.FindAsync(id_avaliacao);
                 if (avaliacao == null)
                 {
-                    response.message = "Avaluation not find";
+                    response.message = "Avaluation not found";
                     return response;
                 }
 
@@ -73,7 +73,7 @@ namespace api_receita.DAL.Repositorys
             return response;
         }
 
-        public async Task<DTOResponse> Create_Avaluation(int id_receita, int id_user, AvaluationModel avaliacao)
+        public async Task<DTOResponse> Create_Rating(int id_receita, int id_user, RatingModel avaliacao)
         {
             DTOResponse response = new DTOResponse();
             try
@@ -83,7 +83,7 @@ namespace api_receita.DAL.Repositorys
 
                 if (receita == null)
                 {
-                    response.message = "Recipe not find";
+                    response.message = "Recipe not found";
                     return response;
                 }
 
@@ -91,7 +91,7 @@ namespace api_receita.DAL.Repositorys
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
-                    response.message = "User not find";
+                    response.message = "User not found";
                     return response;
                 }
 
@@ -103,10 +103,10 @@ namespace api_receita.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
 
                 // Cria a entrada na tabela associativa
-                var receitaAvaliacao = new Recipe_AvaluationModel
+                var receitaAvaliacao = new RatingRecipeModel
                 {
-                    Id_Avaliacao = avaliacao.Id, // Assume que a avaliação tem um Id gerado automaticamente
-                    Id_Receita = id_receita
+                    RatingId = avaliacao.Id, // Assume que a avaliação tem um Id gerado automaticamente
+                    RecipeId = id_receita
                 };
 
                 dbContext.Tb_Receita_Avaliacao.Add(receitaAvaliacao);
@@ -125,7 +125,7 @@ namespace api_receita.DAL.Repositorys
 
 
 
-        public async Task<DTOResponse> List_Avaluation()
+        public async Task<DTOResponse> List_Rating()
         {
             DTOResponse response = new DTOResponse();
 
@@ -142,8 +142,8 @@ namespace api_receita.DAL.Repositorys
                             .Select(user => new
                             {
                                 user.Id,
-                                user.Primeiro_Name,
-                                user.Ultimo_Name,
+                                user.First_Name,
+                                user.Last_Name,
                                 user.Email
                             })
                             .FirstOrDefault()

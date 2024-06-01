@@ -11,8 +11,8 @@ namespace app_receitas_api.DAL.Interfaces
     public interface IRecipe
     {
 
-        Task<DTOResponse> Create_Recipe(RecipeModel receita);
-        Task<DTOResponse> Update_Recipe(int id_receita, RecipeModel receita);
+        Task<DTOResponse> Create_Recipe(RecipeModel receita, IFormFile image);
+        Task<DTOResponse> Update_Recipe(int id_receita, RecipeModel receita, IFormFile? image);
         Task<DTOResponse> List_Recipe();
         Task<DTOResponse> List_Recipe_By_ID(int id);
 

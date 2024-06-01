@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace api_receita.Models
 {
-    [Table("tbl_avaliacao")]
-    public class AvaluationModel
+    [Table("ratings")]
+    public class RatingModel
     {
         [Column("id")]
         [Key]
@@ -17,7 +17,7 @@ namespace api_receita.Models
         [Column("message")]
         public string? Message { get; set; }
 
-        [Column("id_user")]
+        [Column("user_id")]
         public int Id_User { get; set; }
     }
 }

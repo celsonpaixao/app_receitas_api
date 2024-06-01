@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load();
 
 // Obter a string de conexão do ambiente
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_PRODUCTION");
 
 // Adicionar serviços ao contêiner
 builder.Services.AddControllers();
@@ -62,7 +62,8 @@ builder.Services.AddDbContext<ReceitasDbContext>(options =>
 builder.Services.AddTransient<IUser, UserRepository>();
 builder.Services.AddTransient<IRecipe, RecipeRepository>();
 builder.Services.AddTransient<ICategory, CategoryRepository>();
-builder.Services.AddTransient<IAvaluation, AvaluationRepository>();
+builder.Services.AddTransient<IRating, RatingRepository>();
+builder.Services.AddTransient<IFavorite, FavoroteRepository>();
 
 var key = Encoding.ASCII.GetBytes(Config.Secret);
 builder.Services.AddAuthentication(x =>

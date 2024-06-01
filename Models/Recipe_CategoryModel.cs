@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace api_receita.Models
 {
-    [Table("tbl_categoria_receita")]
+    [Table("category_recipe")]
     public class Recipe_CategoryModel
     {
         [Column("id")]
         [Key]
         public int Id { get; set; }
 
-        [Column("id_categoria")]
-        public int Id_Categoria { get; set; }
+        [Column("category_id")]
+        public int CategoryId { get; set; }
 
-        [Column("id_receita")]
-        public int Id_Receita { get; set; }
+        [Column("recipe_id")]
+        public int RecipeId { get; set; }
 
 
     }
