@@ -6,6 +6,7 @@ using api_receita.DAL.Database;
 using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_receita.Controllers
@@ -20,6 +21,7 @@ namespace api_receita.Controllers
             categoria = _categoria;
         }
 
+        [Authorize]
         [HttpGet("list_all_category")]
         public async Task<ActionResult<DTOResponse>> ListasTodasCategorias()
         {

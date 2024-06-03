@@ -15,7 +15,7 @@ namespace app_receitas_api.Controllers
         {
             receitas = _receitas;
         }
-        // [Authorize]
+        [Authorize]
         [HttpPost("create_recipe")]
 
         public async Task<ActionResult<DTOResponse>> Create([FromForm] RecipeModel receita, IFormFile image)
@@ -25,7 +25,7 @@ namespace app_receitas_api.Controllers
             return Ok(response);
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpGet("list_all_recipe")]
 
         public async Task<ActionResult<DTOResponse>> ListarTodasReceitas()
@@ -33,10 +33,10 @@ namespace app_receitas_api.Controllers
             var response = receitas.List_Recipe();
             return Ok(await response);
         }
-        // [Authorize]
+        [Authorize]
         [HttpGet("list_by_recipe_id")]
 
-        // [Authorize]
+        [Authorize]
         public async Task<ActionResult<DTOResponse>> ListarReceitaPorId(int id)
         {
             var response = receitas.List_Recipe_By_ID(id);
