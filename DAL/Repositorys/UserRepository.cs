@@ -20,13 +20,21 @@ namespace api_receita.DAL.Repositorys
             dbContext = _dbContext;
 
         }
-        public async Task<DTOResponse> Create_User(UserModel user, IFormFile? image, string confirmpassword)
+        public async Task<DTOResponse> Create_User(string firstName, string lastName, string email, string password, string confirmPassword)
         {
             DTOResponse response = new DTOResponse();
 
             try
             {
-                // Validar se o email é válido
+                UserModel user = new UserModel
+                {
+                    First_Name = firstName,
+                    Last_Name = lastName,
+                    Email = email,
+                    Password = password
+                };
+
+                // Validate if the email is valid
                 var emailAttribute = new EmailAddressAttribute();
                 if (!emailAttribute.IsValid(user.Email))
                 {
@@ -35,7 +43,7 @@ namespace api_receita.DAL.Repositorys
                     return response;
                 }
 
-                // Verificar se o usuário já existe
+                // Check if the user already exists
                 bool userExists = await dbContext.Tb_User
                     .AnyAsync(u => u.Email == user.Email);
 
@@ -46,54 +54,31 @@ namespace api_receita.DAL.Repositorys
                     return response;
                 }
 
-                // Verificar se a senha e a confirmação da senha correspondem
-                if (user.Password != confirmpassword)
+                // Check if the password and confirmation password match
+                if (user.Password != confirmPassword)
                 {
                     response.message = "Password and password confirmation do not match!";
                     response.statusCode = 401;
                     return response;
                 }
 
-                // Hashear a senha
+                // Hash the password
                 var passwordHasher = new PasswordHasher<UserModel>();
                 user.Password = passwordHasher.HashPassword(user, user.Password);
 
-                // Salvar a imagem, se fornecida
-                if (image != null && image.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine("Uploads", "Users");
-                    var fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(image.FileName);
-                    var filePath = Path.Combine(uploadsFolder, fileName);
-
-                    // Criar o diretório se não existir
-                    Directory.CreateDirectory(uploadsFolder);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await image.CopyToAsync(fileStream);
-                    }
-
-                    // Atualizar o caminho da imagem do usuário
-                    user.ImageURL = Path.Combine("Users", fileName);
-                }
-                else
-                {
-                    user.ImageURL = null;
-                }
-
-                // Adicionar novo usuário
+          
+                // Add the new user
                 dbContext.Tb_User.Add(user);
                 await dbContext.SaveChangesAsync();
 
                 response.response = user;
                 response.statusCode = 200;
                 response.message = "User registered successfully!";
-
             }
             catch (Exception e)
             {
                 response.statusCode = 500;
-                response.message = "Opps we have a problem! " + e.Message;
+                response.message = "Oops, we have a problem! " + e.Message;
             }
 
             return response;

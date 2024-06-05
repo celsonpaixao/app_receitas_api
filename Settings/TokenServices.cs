@@ -1,3 +1,4 @@
+using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -10,20 +11,18 @@ namespace app_receitas_api.Settings
     {
         public static object GenericToken(UserModel user)
         {
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(Config.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
             {
-
-                Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]{
-                    new Claim("userid", user.Id.ToString()),
-                    new Claim("useremial", user.Email.ToString()),
-                    new Claim("username", user. First_Name.ToString() + "" + user.Last_Name.ToString()),
-                    
+                Subject = new ClaimsIdentity(new Claim[]{
+                      new Claim("userid", user.Id.ToString()),
+                      new Claim("useremail", user.Email),
+                      new Claim("firstname", user.First_Name),
+                      new Claim("lastname", user.Last_Name),
+                      new Claim("imageurl", user.ImageURL ?? string.Empty)
                 }),
                 Expires = DateTime.UtcNow.AddDays(360),
-
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
             };
 

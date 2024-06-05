@@ -9,7 +9,7 @@ namespace api_receita.DAL.Interfaces
 {
     public interface IUser
     {
-        Task<DTOResponse> Create_User(UserModel user, IFormFile? image, string confitmpassword);
+        Task<DTOResponse> Create_User(string firstName, string lastName, string email, string password, string confirmPassword);
         Task<DTOResponse> Update_User(int id_user, UserModel userAtualizado, IFormFile? newImage, string confitmpassword);
         Task<DTOResponse> Delete_User(int id_user);
         Task<DTOResponse> Auth_User(string email, string password);

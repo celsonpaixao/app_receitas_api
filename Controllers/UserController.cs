@@ -17,16 +17,16 @@ namespace api_receita.Controllers
         }
         [HttpPost("register_user")]
 
-        public async Task<ActionResult<DTOResponse>> CadastrarUsuario([FromForm] UserModel user, IFormFile? image, string confirmpassword)
+        public async Task<ActionResult<DTOResponse>> CadastrarUsuario(string firstName, string lastName, string email, string password, string confirmPassword)
         {
-
-            var resposta = await userServices.Create_User(user, image,  confirmpassword);
+        
+            var resposta = await userServices.Create_User(firstName,lastName,email,password,confirmPassword);
             if (resposta == null || resposta.statusCode != 200)
             {
                 // Se houve um erro, retorna um BadRequest com a mensagem de erro
                 return BadRequest(resposta?.message);
             }
-
+            
             return Ok(resposta);
         }
         // [Authorize]
