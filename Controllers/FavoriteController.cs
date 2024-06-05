@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api_receita.DAL.Interfaces;
 using api_receita.DTO;
 using api_receita.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_receita.Controllers
@@ -18,6 +19,8 @@ namespace api_receita.Controllers
         {
             favorite = _favorite;
         }
+        
+        [Authorize]
         [HttpGet("list_favorite")]
         public async Task<ActionResult<DTOResponse>> List_Favorite(int id_user)
         {
@@ -26,6 +29,7 @@ namespace api_receita.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost("add_favorite")]
         public async Task<ActionResult<DTOResponse>> Add_Favorite(FavoritesModel favorited)
         {
@@ -34,6 +38,7 @@ namespace api_receita.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpDelete("remove_favorite")]
         public async Task<ActionResult<DTOResponse>> Remove_Favorite(int id)
         {

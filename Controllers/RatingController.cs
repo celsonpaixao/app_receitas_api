@@ -16,10 +16,8 @@ namespace api_receita.Controllers
         {
             avaliacao = _avaliacao;
         }
-
+        [Authorize]
         [HttpGet("list_all_avaliaction")]
-
-
         public async Task<ActionResult<DTOResponse>> ListarTodasAvaliacoes()
         {
             var resposta = await avaliacao.List_Rating();
