@@ -31,6 +31,7 @@ namespace api_receita.DAL.Repositorys
                 if (!emailAttribute.IsValid(user.Email))
                 {
                     response.message = "Invalid email format!";
+                    response.statusCode = 401;
                     return response;
                 }
 
@@ -41,6 +42,7 @@ namespace api_receita.DAL.Repositorys
                 if (userExists)
                 {
                     response.message = "User already exists with this email!";
+                    response.statusCode = 404;
                     return response;
                 }
 
@@ -48,6 +50,7 @@ namespace api_receita.DAL.Repositorys
                 if (user.Password != confirmpassword)
                 {
                     response.message = "Password and password confirmation do not match!";
+                    response.statusCode = 401;
                     return response;
                 }
 
@@ -83,10 +86,13 @@ namespace api_receita.DAL.Repositorys
                 await dbContext.SaveChangesAsync();
 
                 response.response = user;
+                response.statusCode = 200;
                 response.message = "User registered successfully!";
+
             }
             catch (Exception e)
             {
+                response.statusCode = 500;
                 response.message = "Opps we have a problem! " + e.Message;
             }
 
@@ -259,22 +265,11 @@ namespace api_receita.DAL.Repositorys
                 // Procurar o usuário pelo e-mail no banco de dados
                 var user = await dbContext.Tb_User.FirstOrDefaultAsync(u => u.Email == email);
 
-                // Verificar se todos os campos foram preenchidos
-                if (string.IsNullOrEmpty(email))
-                {
-                    response.message = "You need to provide your email !";
-                    return response;
-                }
-                if (string.IsNullOrEmpty(password))
-                {
-                    response.message = "You need to enter the password !";
-                    return response;
-                }
-
                 // Verificar se o usuário existe
                 if (user == null)
                 {
                     response.message = "This user does not exist";
+                    response.statusCode = 404; // Usuário não encontrado
                     return response;
                 }
 
@@ -284,7 +279,8 @@ namespace api_receita.DAL.Repositorys
 
                 if (result == PasswordVerificationResult.Failed)
                 {
-                    response.message = "Password incorret";
+                    response.message = "Incorrect password";
+                    response.statusCode = 401; // Senha incorreta
                     return response;
                 }
 
@@ -292,17 +288,20 @@ namespace api_receita.DAL.Repositorys
                 var token = TokenServices.GenericToken(user);
 
                 // Autenticação bem-sucedida
-                response.message = "User Auth sucess";
+                response.message = "User Auth success";
                 response.response = token; // Retornar informações adicionais do usuário junto com o token
+                response.statusCode = 200; // OK
             }
             catch (Exception e)
             {
                 // Lidar com exceções, se necessário
                 response.message = $"Opps we have a problem {e.Message}";
+                response.statusCode = 500; // Erro interno do servidor
             }
 
             return response;
         }
+
 
 
     }

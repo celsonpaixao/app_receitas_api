@@ -19,8 +19,8 @@ DotNetEnv.Env.Load();
 
 // Obter a string de conexão do ambiente
 
-// var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_LOCAL");
-var connectionString = "Host= sneeringly-large-fisher.data-1.use1.tembo.io; Username= postgres;Port= 5432 ;Password = PmfkKzAv6Ss8ck7H; Database = db_recipes";
+ var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_LOCAL");
+ //var connectionString = "Host= sneeringly-large-fisher.data-1.use1.tembo.io; Username= postgres;Port= 5432 ;Password = PmfkKzAv6Ss8ck7H; Database = db_recipes";
 
 // Adicionar serviços ao contêiner
 builder.Services.AddControllers();

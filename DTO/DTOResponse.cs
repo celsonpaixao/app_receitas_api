@@ -4,5 +4,6 @@ namespace api_receita.DTO
   {
     public object response { get; set; }
     public string message { get; set; }
-  }
+     public int statusCode { get; set; }
+    }
 }
