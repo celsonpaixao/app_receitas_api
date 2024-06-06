@@ -108,11 +108,12 @@ namespace api_receita.DAL.Repositorys
                                };
 
                 response.response = query;
+                response.statusCode = 200;
                 response.message = "Sucess";
             }
             catch (System.Exception e)
             {
-
+                response.statusCode =500;
                 response.message = $"Opps we have a problem {e.Message}";
             }
             return response;

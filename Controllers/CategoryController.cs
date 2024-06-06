@@ -26,6 +26,11 @@ namespace api_receita.Controllers
         public async Task<ActionResult<DTOResponse>> ListasTodasCategorias()
         {
             var resposta = await categoria.List_Category();
+            if (resposta == null || resposta.statusCode != 200)
+            {
+                // Se houve um erro, retorna um BadRequest com a mensagem de erro
+                return BadRequest(resposta?.message);
+            }
             return Ok(resposta);
         }
 
