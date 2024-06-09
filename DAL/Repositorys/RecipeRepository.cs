@@ -544,71 +544,72 @@ namespace app_receitas_api.DAL.Repositorys
 
             try
             {
-                var query = await dbContext.Tb_RecipeCategory
+                var recipes = await dbContext.Tb_RecipeCategory
                     .Where(rc => rc.CategoryId == categoryId)
-                    .Select(rc => new
+                    .Select(rc => rc.RecipeId)
+                    .Distinct()
+                    .ToListAsync();
+
+                var recipeDetails = await dbContext.Tb_Receita
+                    .Where(r => recipes.Contains(r.Id))
+                    .Select(r => new
                     {
-                        Recipe = dbContext.Tb_Receita
-                            .Where(r => r.Id == rc.RecipeId)
-                            .Select(r => new
-                            {
-                                r.Id,
-                                r.Title,
-                                r.Description,
-                                r.Instructions,
-                                r.ImageURL,
-                                Admin = dbContext.Tb_User
-                                    .Where(user => user.Id == r.UserId)
-                                    .Select(user => user.First_Name + " " + user.Last_Name)
-                                    .FirstOrDefault(),
-
-                                // Buscar Ingredientes
-                                Ingredients = dbContext.Tb_Ingredients_Recipe
-                                    .Where(ri => ri.RecipeId == r.Id)
-                                    .Join(dbContext.Tb_Ingredients,
-                                          ri => ri.IngredientId,
-                                          ingrediente => ingrediente.Id,
-                                          (ri, ingrediente) => ingrediente.Name)
-                                    .ToList(),
-
-                                // Buscar Materiais
-                                Materials = dbContext.Tb_Materials_Recipe
-                                    .Where(mr => mr.RecipeId == r.Id)
-                                    .Join(dbContext.Tb_Materials,
-                                          mr => mr.MaterialId,
-                                          material => material.Id,
-                                          (mr, material) => material.Name)
-                                    .ToList(),
-
-                                // Buscar Avaliações
-                                Avaliacoes = dbContext.Tb_Receita_Avaliacao
-                                    .Where(ra => ra.RecipeId == r.Id)
-                                    .Join(dbContext.Tb_Avaliacao,
-                                          ra => ra.RatingId,
-                                          avaliacao => avaliacao.Id,
-                                          (ra, avaliacao) => new
+                        r.Id,
+                        r.Title,
+                        r.Description,
+                        r.Instructions,
+                        r.ImageURL,
+                        Admin = dbContext.Tb_User
+                            .Where(user => user.Id == r.UserId)
+                            .Select(user => user.First_Name + " " + user.Last_Name)
+                            .FirstOrDefault(),
+                        Categorias = dbContext.Tb_RecipeCategory
+                            .Where(rc => rc.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Categoria,
+                                  rc => rc.CategoryId,
+                                  categoria => categoria.Id,
+                                  (rc, categoria) => categoria.Name)
+                            .ToList(),
+                        Ingredients = dbContext.Tb_Ingredients_Recipe
+                            .Where(ri => ri.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Ingredients,
+                                  ri => ri.IngredientId,
+                                  ingrediente => ingrediente.Id,
+                                  (ri, ingrediente) => ingrediente.Name)
+                            .ToList(),
+                        Materials = dbContext.Tb_Materials_Recipe
+                            .Where(mr => mr.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Materials,
+                                  mr => mr.MaterialId,
+                                  material => material.Id,
+                                  (mr, material) => material.Name)
+                            .ToList(),
+                        Avaliacoes = dbContext.Tb_Receita_Avaliacao
+                            .Where(ra => ra.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Avaliacao,
+                                  ra => ra.RatingId,
+                                  avaliacao => avaliacao.Id,
+                                  (ra, avaliacao) => new
+                                  {
+                                      avaliacao.Id,
+                                      avaliacao.Value,
+                                      avaliacao.Message,
+                                      User = dbContext.Tb_User
+                                          .Where(user => user.Id == avaliacao.Id_User)
+                                          .Select(user => new
                                           {
-                                              avaliacao.Id,
-                                              avaliacao.Value,
-                                              avaliacao.Message,
-                                              User = dbContext.Tb_User
-                                                  .Where(user => user.Id == avaliacao.Id_User)
-                                                  .Select(user => new
-                                                  {
-                                                      user.Id,
-                                                      user.First_Name,
-                                                      user.Last_Name,
-                                                      user.Email
-                                                  })
-                                                  .FirstOrDefault()
+                                              user.Id,
+                                              user.First_Name,
+                                              user.Last_Name,
+                                              user.Email
                                           })
-                                    .ToList()
-                            })
-                            .FirstOrDefault()
+                                          .FirstOrDefault()
+                                  })
+                            .ToList()
                     })
                     .ToListAsync();
 
-                response.response = query;
+                response.response = recipeDetails;
                 response.message = "Success";
             }
             catch (Exception e)
@@ -618,6 +619,7 @@ namespace app_receitas_api.DAL.Repositorys
 
             return response;
         }
+
 
     }
 }
