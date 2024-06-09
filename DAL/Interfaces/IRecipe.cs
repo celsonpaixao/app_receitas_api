@@ -14,8 +14,8 @@ namespace app_receitas_api.DAL.Interfaces
         Task<DTOResponse> Create_Recipe(RecipeModel receita, IFormFile image);
         Task<DTOResponse> Update_Recipe(int id_receita, RecipeModel receita, IFormFile? image);
         Task<DTOResponse> List_Recipe();
-        Task<DTOResponse> List_Recipe_By_ID(int id);
-
+        Task<DTOResponse> List_Recipe_By_User(int id_user);
+        Task<DTOResponse> List_Recipe_By_Category(int id_category);
         Task<DTOResponse> Delete_Recipe(int id);
     }
 }
