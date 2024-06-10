@@ -97,6 +97,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.Run("http://192.168.31.193:5000");
+//app.Run("http://192.168.31.193:5000");
 
 app.Run();
+
