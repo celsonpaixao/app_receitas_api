@@ -453,5 +453,173 @@ namespace app_receitas_api.DAL.Repositorys
             return response;
         }
 
+        public async Task<DTOResponse> List_Recipe_By_User(int userId)
+        {
+            DTOResponse response = new DTOResponse();
+
+            try
+            {
+                var query = await dbContext.Tb_Receita
+                    .Where(receita => receita.UserId == userId)
+                    .Select(receita => new
+                    {
+                        receita.Id,
+                        receita.Title,
+                        receita.Description,
+                        receita.Instructions,
+                        receita.ImageURL,
+                        Admin = dbContext.Tb_User
+                            .Where(user => user.Id == receita.UserId)
+                            .Select(user => user.First_Name + " " + user.Last_Name)
+                            .FirstOrDefault(),
+
+                        // Buscar Categorias
+                        // Buscar Categorias
+                        Categorias = dbContext.Tb_RecipeCategory
+                            .Where(rc => rc.RecipeId == receita.Id)
+                            .Join(dbContext.Tb_Categoria,
+                                  rc => rc.CategoryId,
+                                  categoria => categoria.Id,
+                                  (rc, categoria) => categoria.Name)
+                            .ToList(),
+
+                        // Buscar Ingredientes
+                        Ingredients = dbContext.Tb_Ingredients_Recipe
+                            .Where(ri => ri.RecipeId == receita.Id)
+                            .Join(dbContext.Tb_Ingredients,
+                            ri => ri.IngredientId,
+                            ingrediente => ingrediente.Id,
+                            (ri, ingrediente) => ingrediente.Name)
+                            .ToList(),
+
+                        // Buscar Materiais
+                        Materials = dbContext.Tb_Materials_Recipe
+                            .Where(rm => rm.RecipeId == receita.Id)
+                            .Join(dbContext.Tb_Materials,
+                             rm => rm.MaterialId,
+                             material => material.Id,
+                             (rm, material) => material.Name)
+                             .ToList(),
+
+                        Avaliacoes = dbContext.Tb_Receita_Avaliacao
+                            .Where(ra => ra.RecipeId == receita.Id)
+                            .Join(dbContext.Tb_Avaliacao,
+                                  ra => ra.RatingId,
+                                  avaliacao => avaliacao.Id,
+                                  (ra, avaliacao) => new
+                                  {
+                                      avaliacao.Id,
+                                      avaliacao.Value,
+                                      avaliacao.Message,
+                                      User = dbContext.Tb_User
+                                          .Where(user => user.Id == avaliacao.Id_User)
+                                          .Select(user => new
+                                          {
+                                              user.Id,
+                                              user.First_Name,
+                                              user.Last_Name,
+                                              user.Email
+                                          })
+                                          .FirstOrDefault()
+                                  })
+                            .ToList()
+
+                    })
+                    .ToListAsync();
+
+                response.response = query;
+                response.message = "Success";
+            }
+            catch (Exception e)
+            {
+                response.message = $"Something went wrong: {e.Message}";
+            }
+
+            return response;
+        }
+
+        public async Task<DTOResponse> List_Recipe_By_Category(int categoryId)
+        {
+            DTOResponse response = new DTOResponse();
+
+            try
+            {
+                var recipes = await dbContext.Tb_RecipeCategory
+                    .Where(rc => rc.CategoryId == categoryId)
+                    .Select(rc => rc.RecipeId)
+                    .Distinct()
+                    .ToListAsync();
+
+                var recipeDetails = await dbContext.Tb_Receita
+                    .Where(r => recipes.Contains(r.Id))
+                    .Select(r => new
+                    {
+                        r.Id,
+                        r.Title,
+                        r.Description,
+                        r.Instructions,
+                        r.ImageURL,
+                        Admin = dbContext.Tb_User
+                            .Where(user => user.Id == r.UserId)
+                            .Select(user => user.First_Name + " " + user.Last_Name)
+                            .FirstOrDefault(),
+                        Categorias = dbContext.Tb_RecipeCategory
+                            .Where(rc => rc.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Categoria,
+                                  rc => rc.CategoryId,
+                                  categoria => categoria.Id,
+                                  (rc, categoria) => categoria.Name)
+                            .ToList(),
+                        Ingredients = dbContext.Tb_Ingredients_Recipe
+                            .Where(ri => ri.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Ingredients,
+                                  ri => ri.IngredientId,
+                                  ingrediente => ingrediente.Id,
+                                  (ri, ingrediente) => ingrediente.Name)
+                            .ToList(),
+                        Materials = dbContext.Tb_Materials_Recipe
+                            .Where(mr => mr.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Materials,
+                                  mr => mr.MaterialId,
+                                  material => material.Id,
+                                  (mr, material) => material.Name)
+                            .ToList(),
+                        Avaliacoes = dbContext.Tb_Receita_Avaliacao
+                            .Where(ra => ra.RecipeId == r.Id)
+                            .Join(dbContext.Tb_Avaliacao,
+                                  ra => ra.RatingId,
+                                  avaliacao => avaliacao.Id,
+                                  (ra, avaliacao) => new
+                                  {
+                                      avaliacao.Id,
+                                      avaliacao.Value,
+                                      avaliacao.Message,
+                                      User = dbContext.Tb_User
+                                          .Where(user => user.Id == avaliacao.Id_User)
+                                          .Select(user => new
+                                          {
+                                              user.Id,
+                                              user.First_Name,
+                                              user.Last_Name,
+                                              user.Email
+                                          })
+                                          .FirstOrDefault()
+                                  })
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                response.response = recipeDetails;
+                response.message = "Success";
+            }
+            catch (Exception e)
+            {
+                response.message = $"Something went wrong: {e.Message}";
+            }
+
+            return response;
+        }
+
+
     }
 }

@@ -33,17 +33,17 @@ namespace api_receita.Controllers
         [HttpPost("auth_user")]
         public async Task<ActionResult<DTOResponse>> LogarUsuario(string email, string password)
         {
-            // Chama o método Auth_User do serviço de usuário
+            // Chama o mï¿½todo Auth_User do serviï¿½o de usuï¿½rio
             var resposta = await userServices.Auth_User(email, password);
 
-            // Verifica se houve algum erro durante a autenticação
+            // Verifica se houve algum erro durante a autenticaï¿½ï¿½o
             if (resposta == null || resposta.statusCode != 200)
             {
                 // Se houve um erro, retorna um BadRequest com a mensagem de erro
                 return BadRequest(resposta?.message);
             }
 
-            // Se a autenticação foi bem-sucedida, retorna um Ok com o DTO de resposta
+            // Se a autenticaï¿½ï¿½o foi bem-sucedida, retorna um Ok com o DTO de resposta
             return Ok(resposta);
         }
 

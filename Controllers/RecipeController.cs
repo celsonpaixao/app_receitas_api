@@ -34,12 +34,22 @@ namespace app_receitas_api.Controllers
             return Ok(await response);
         }
         [Authorize]
-        [HttpGet("list_by_recipe_id")]
+        [HttpGet("list_by_recipe_user")]
 
         [Authorize]
         public async Task<ActionResult<DTOResponse>> ListarReceitaPorId(int id)
         {
-            var response = receitas.List_Recipe_By_ID(id);
+            var response = receitas.List_Recipe_By_User(id);
+            return Ok(await response);
+        }
+
+        [Authorize]
+        [HttpGet("list_by_recipe_category")]
+
+        [Authorize]
+        public async Task<ActionResult<DTOResponse>> ListarReceitaPorCategoria(int id)
+        {
+            var response = receitas.List_Recipe_By_Category(id);
             return Ok(await response);
         }
         [Authorize]
@@ -55,7 +65,7 @@ namespace app_receitas_api.Controllers
         [HttpPut("update_recipe")]
 
 
-        public async Task<ActionResult<DTOResponse>> AtualizarReceita([FromForm] int id_receita, [FromForm] RecipeModel receita,  IFormFile? image)
+        public async Task<ActionResult<DTOResponse>> AtualizarReceita([FromForm] int id_receita, [FromForm] RecipeModel receita, IFormFile? image)
         {
             var response = await receitas.Update_Recipe(id_receita, receita, image);
             return Ok(response);
