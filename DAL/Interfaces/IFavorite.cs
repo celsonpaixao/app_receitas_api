@@ -9,8 +9,8 @@ namespace api_receita.DAL.Interfaces
 {
     public interface IFavorite
     {
-        Task<DTOResponse> Add_Favorite(FavoritesModel favorited);
-        Task<DTOResponse> Remove_Favorite(int id);
+        Task<DTOResponse> AddFavorite(int userId, int recipeId);
+        Task<DTOResponse> RemoveFavorite(int userId, int recipeId);
         Task<DTOResponse> Liste_Favorite(int id_user);
     }
 }
