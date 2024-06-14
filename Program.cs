@@ -98,6 +98,12 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http://192.168.1.12:3000");
+
+//app.Run("http://192.168.42.35:3000");
+
+app.Run("http://192.168.1.8:3000");
+
+
 
 app.Run();
+

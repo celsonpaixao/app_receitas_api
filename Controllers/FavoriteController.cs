@@ -31,18 +31,18 @@ namespace api_receita.Controllers
 
         [Authorize]
         [HttpPost("add_favorite")]
-        public async Task<ActionResult<DTOResponse>> Add_Favorite(FavoritesModel favorited)
+        public async Task<ActionResult<DTOResponse>> AddFavorite(int userId, int recipeId)
         {
-            var response = await favorite.Add_Favorite(favorited);
+            var response = await favorite.AddFavorite(userId, recipeId);
 
             return Ok(response);
         }
-
+        
         [Authorize]
         [HttpDelete("remove_favorite")]
-        public async Task<ActionResult<DTOResponse>> Remove_Favorite(int id)
+        public async Task<ActionResult<DTOResponse>> RemoveFavorite(int userId, int recipeId)
         {
-            var response = await favorite.Remove_Favorite(id);
+            var response = await favorite.RemoveFavorite( userId,  recipeId);
 
             return Ok(response);
         }

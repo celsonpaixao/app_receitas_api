@@ -18,14 +18,30 @@ namespace api_receita.DAL.Repositorys
             dbContext = _dbContext;
         }
 
-        public async Task<DTOResponse> Add_Favorite(FavoritesModel favorited)
+        public async Task<DTOResponse> AddFavorite(int userId, int recipeId)
         {
             DTOResponse response = new DTOResponse();
             try
             {
-                dbContext.Tb_Favorite.Add(favorited);
-                await dbContext.SaveChangesAsync();
-                response.message = "Recipe Favorited!";
+                var existingFavorite = await dbContext.Tb_Favorite
+                    .FirstOrDefaultAsync(favorite => favorite.User_id == userId && favorite.Recipe_id == recipeId);
+
+                if (existingFavorite == null)
+                {
+                    FavoritesModel newFavorite = new FavoritesModel
+                    {
+                        User_id = userId,
+                        Recipe_id = recipeId
+                    };
+
+                    dbContext.Tb_Favorite.Add(newFavorite);
+                    await dbContext.SaveChangesAsync();
+                    response.message = "Recipe favorited successfully!";
+                }
+                else
+                {
+                    response.message = "Recipe is already in favorites!";
+                }
             }
             catch (Exception e)
             {
@@ -126,28 +142,28 @@ namespace api_receita.DAL.Repositorys
 
 
 
-        public async Task<DTOResponse> Remove_Favorite(int id)
+        public async Task<DTOResponse> RemoveFavorite(int userId, int recipeId)
         {
             DTOResponse response = new DTOResponse();
             try
             {
-                var recipe = await dbContext.Tb_Favorite.FindAsync(id);
-                if (recipe != null)
-                {
-                    dbContext.Tb_Favorite.Remove(recipe);
-                    await dbContext.SaveChangesAsync();
-                    response.message = "Recipe removed of favorite !";
+                var existingFavorite = await dbContext.Tb_Favorite
+                    .FirstOrDefaultAsync(favorite => favorite.User_id == userId && favorite.Recipe_id == recipeId);
 
+                if (existingFavorite != null)
+                {
+                    dbContext.Tb_Favorite.Remove(existingFavorite);
+                    await dbContext.SaveChangesAsync();
+                    response.message = "Recipe removed from favorites!";
                 }
                 else
                 {
-                    response.message = "Recipe not found ";
+                    response.message = "Recipe not found in favorites!";
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-
-                response.message = "We have a problem" + e.Message;
+                response.message = "Oops, we have a problem: " + e.Message;
             }
             return response;
         }
