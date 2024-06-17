@@ -241,9 +241,15 @@ namespace app_receitas_api.DAL.Repositorys
                         receita.Description,
                         receita.Instructions,
                         receita.ImageURL,
+                        IdAdmin = dbContext.Tb_User
+                            .Where(user => user.Id == receita.UserId)
+                            .Select(user => user.Id)
+                            .FirstOrDefault(),
+                            
                         Admin = dbContext.Tb_User
                             .Where(user => user.Id == receita.UserId)
                             .Select(user => user.First_Name + " " + user.Last_Name)
+
                             .FirstOrDefault(),
 
                         // Buscar Categorias

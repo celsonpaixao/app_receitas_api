@@ -45,7 +45,7 @@ namespace api_receita.DAL.Repositorys
             }
             catch (Exception e)
             {
-                response.message = "Oops, we have a problem: " + e.Message;
+                response.message = "Oops, we have a problem: " + e.ToString();
             }
             return response;
         }

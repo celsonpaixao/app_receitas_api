@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS Materials (
 
 CREATE TABLE IF NOT EXISTS Favorites (
     id SERIAL PRIMARY KEY,
-    recipe_id INT NOT NULL unique,
+    recipe_id INT NOT NULL,
     user_id INT NOT NULL,
     FOREIGN KEY (recipe_id) REFERENCES Recipes(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
