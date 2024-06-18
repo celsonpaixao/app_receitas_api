@@ -90,7 +90,6 @@ namespace api_receita.DAL.Repositorys
             DTOResponse response = new DTOResponse();
             try
             {
-
                 var user = await dbContext.Tb_User.FindAsync(id_user);
                 if (user == null)
                 {
@@ -139,7 +138,7 @@ namespace api_receita.DAL.Repositorys
                     }
 
                     // Salva a nova imagem
-                    var uploadsFolder = Path.Combine("Uploads", "Users");
+                    var uploadsFolder = Path.Combine("wwwroot", "uploads", "users");
                     var uniqueFileName = DateTime.Now.Ticks + Path.GetExtension(newImage.FileName);
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -152,18 +151,23 @@ namespace api_receita.DAL.Repositorys
                     }
 
                     // Atualiza o caminho da imagem do usuário
-                    user.ImageURL = Path.Combine(uploadsFolder, uniqueFileName);
+                    user.ImageURL = Path.Combine("uploads", "users", uniqueFileName).Replace("\\", "/");
                 }
 
                 dbContext.Tb_User.Update(user);
                 await dbContext.SaveChangesAsync();
 
-                response.response = user;
-                response.message = "User Updating successfully!";
+                // Generate a new token
+                var token = TokenServices.GenericToken(user);
+
+                response.response = new { user, token };
+                response.message = "User updated successfully!";
+                response.statusCode = 200;
             }
             catch (Exception e)
             {
-                response.message = $"Opps we have a problem: {e.Message}";
+                response.message = $"Oops, we have a problem: {e.Message}";
+                response.statusCode = 500;
             }
 
             return response;

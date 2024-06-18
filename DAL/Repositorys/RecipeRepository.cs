@@ -39,7 +39,7 @@ namespace app_receitas_api.DAL.Repositorys
                     // Se a receita já tiver uma imagem, exclua-a
                     if (!string.IsNullOrEmpty(receita.ImageURL))
                     {
-                        var imagePath = Path.Combine("Uploads", receita.ImageURL);
+                        var imagePath = Path.Combine("wwwroot", receita.ImageURL);
                         if (File.Exists(imagePath))
                         {
                             File.Delete(imagePath);
@@ -47,7 +47,7 @@ namespace app_receitas_api.DAL.Repositorys
                     }
 
                     // Salva a nova imagem
-                    var uploadsFolder = Path.Combine("Uploads", "Recipes");
+                    var uploadsFolder = Path.Combine("wwwroot", "uploads", "recipes");
                     var uniqueFileName = DateTime.Now.Ticks + Path.GetExtension(newImage.FileName);
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
@@ -60,7 +60,7 @@ namespace app_receitas_api.DAL.Repositorys
                     }
 
                     // Atualiza o caminho da imagem da receita
-                    receita.ImageURL = Path.Combine("Recipes", uniqueFileName);
+                    receita.ImageURL = Path.Combine("uploads", "recipes", uniqueFileName);
                 }
 
                 // Atualiza as categorias associadas
@@ -357,82 +357,35 @@ namespace app_receitas_api.DAL.Repositorys
 
             return response;
         }
-        public async Task<DTOResponse> Create_Recipe(RecipeModel receita, IFormFile image)
+        public async Task<DTOResponse> Create_Recipe(RecipeModel receita, IFormFile? imageFile)
         {
             DTOResponse response = new DTOResponse();
             using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             try
             {
-                var uploadsFolder = Path.Combine("Uploads", "Recipes");
-                var fileName = DateTime.Now.ToString("yyyyMMddHHmmss") + Path.GetExtension(image.FileName);
-                var filePath = Path.Combine(uploadsFolder, fileName);
-
-                // Criar o diretório se não existir
-                Directory.CreateDirectory(uploadsFolder);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                // Salva a imagem da receita, se fornecida
+                if (imageFile != null && imageFile.Length > 0)
                 {
-                    await image.CopyToAsync(fileStream);
+                    var uploadsFolder = Path.Combine("wwwroot", "uploads", "recipes");
+                    var uniqueFileName = DateTime.Now.Ticks + Path.GetExtension(imageFile.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    // Criar o diretório se não existir
+                    Directory.CreateDirectory(uploadsFolder);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(fileStream);
+                    }
+
+                    receita.ImageURL = Path.Combine("uploads", "recipes", uniqueFileName);
                 }
 
-                // Atualizar o caminho da imagem do usuário
-                receita.ImageURL = Path.Combine(uploadsFolder, fileName);
-                // Adiciona a receita
                 dbContext.Tb_Receita.Add(receita);
                 await dbContext.SaveChangesAsync();
 
-                // Mapeia os ingredientes
-                var ingredients = new List<IngredientsModel>();
-                foreach (var ingredientName in receita.Ingredients)
-                {
-                    var existingIngredient = await dbContext.Tb_Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientName);
-                    if (existingIngredient == null)
-                    {
-                        existingIngredient = new IngredientsModel { Name = ingredientName };
-                        dbContext.Tb_Ingredients.Add(existingIngredient);
-                        await dbContext.SaveChangesAsync(); // Salva o novo ingrediente no banco de dados
-                    }
-                    ingredients.Add(existingIngredient);
-                }
-
-                // Mapeia os materiais
-                var materials = new List<MaterialsModel>();
-                foreach (var materialName in receita.Materials)
-                {
-                    var existingMaterial = await dbContext.Tb_Materials.FirstOrDefaultAsync(m => m.Name == materialName);
-                    if (existingMaterial == null)
-                    {
-                        existingMaterial = new MaterialsModel { Name = materialName };
-                        dbContext.Tb_Materials.Add(existingMaterial);
-                        await dbContext.SaveChangesAsync(); // Salva o novo material no banco de dados
-                    }
-                    materials.Add(existingMaterial);
-                }
-
-                // Associa os ingredientes à receita
-                foreach (var ingredient in ingredients)
-                {
-                    var ingredientRecipe = new IngredientRecipeModel
-                    {
-                        IngredientId = ingredient.Id,
-                        RecipeId = receita.Id
-                    };
-                    dbContext.Tb_Ingredients_Recipe.Add(ingredientRecipe);
-                }
-
-                // Associa os materiais à receita
-                foreach (var material in materials)
-                {
-                    var materialRecipe = new MaterialRecipeModel
-                    {
-                        MaterialId = material.Id,
-                        RecipeId = receita.Id
-                    };
-                    dbContext.Tb_Materials_Recipe.Add(materialRecipe);
-                }
-
-                // Associa as categorias à receita
+                // Adiciona as categorias associadas
                 foreach (var categoriaId in receita.Categorias)
                 {
                     var receitaCategoria = new Recipe_CategoryModel
@@ -443,21 +396,57 @@ namespace app_receitas_api.DAL.Repositorys
                     dbContext.Tb_RecipeCategory.Add(receitaCategoria);
                 }
 
-                // Confirma as mudanças no banco de dados
+                // Adiciona os ingredientes associados
+                foreach (var ingredientName in receita.Ingredients)
+                {
+                    var existingIngredient = await dbContext.Tb_Ingredients.FirstOrDefaultAsync(i => i.Name == ingredientName);
+                    if (existingIngredient == null)
+                    {
+                        existingIngredient = new IngredientsModel { Name = ingredientName };
+                        dbContext.Tb_Ingredients.Add(existingIngredient);
+                        await dbContext.SaveChangesAsync(); // Salva o novo ingrediente no banco de dados
+                    }
+                    var ingredientRecipe = new IngredientRecipeModel
+                    {
+                        IngredientId = existingIngredient.Id,
+                        RecipeId = receita.Id
+                    };
+                    dbContext.Tb_Ingredients_Recipe.Add(ingredientRecipe);
+                }
+
+                // Adiciona os materiais associados
+                foreach (var materialName in receita.Materials)
+                {
+                    var existingMaterial = await dbContext.Tb_Materials.FirstOrDefaultAsync(m => m.Name == materialName);
+                    if (existingMaterial == null)
+                    {
+                        existingMaterial = new MaterialsModel { Name = materialName };
+                        dbContext.Tb_Materials.Add(existingMaterial);
+                        await dbContext.SaveChangesAsync(); // Salva o novo material no banco de dados
+                    }
+                    var materialRecipe = new MaterialRecipeModel
+                    {
+                        MaterialId = existingMaterial.Id,
+                        RecipeId = receita.Id
+                    };
+                    dbContext.Tb_Materials_Recipe.Add(materialRecipe);
+                }
+
                 await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 response.response = receita;
-                response.message = "Recipe published successfully";
+                response.message = "Receita criada com sucesso!";
             }
             catch (Exception e)
             {
                 await transaction.RollbackAsync();
-                response.message = $"Opps we have a problem {e.ToString()}";
+                response.message = $"Erro ao criar receita: {e.Message}";
             }
 
             return response;
         }
+
 
         public async Task<DTOResponse> List_Recipe_By_User(int userId)
         {

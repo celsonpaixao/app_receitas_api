@@ -11,7 +11,6 @@ using Microsoft.OpenApi.Models;
 using app_receitas_api.DAL.Interfaces;
 using app_receitas_api.DAL.Repositorys;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Carregar as variáveis de ambiente do arquivo .env
@@ -19,8 +18,6 @@ DotNetEnv.Env.Load();
 
 // Obter a string de conexão do ambiente
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_LOCAL");
-
-//var connectionString = "Host= sneeringly-large-fisher.data-1.use1.tembo.io; Username= postgres;Port= 5432 ;Password = PmfkKzAv6Ss8ck7H; Database = db_recipes";
 
 // Adicionar serviços ao contêiner
 builder.Services.AddControllers();
@@ -55,7 +52,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
 // Configurar DbContext com a string de conexão carregada
 builder.Services.AddDbContext<ReceitasDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -74,38 +70,37 @@ builder.Services.AddAuthentication(x =>
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(x =>
 {
-    x.RequireHttpsMetadata = false;
+    x.RequireHttpsMetadata = false; // Considere definir como true em produção
     x.SaveToken = true;
 
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        ValidateIssuer = false, // Considere validar o emissor em produção
+        ValidateAudience = false // Considere validar o público em produção
     };
 });
 
 var app = builder.Build();
 
 // Configurar o pipeline de requisição HTTP
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Necessário para servir arquivos estáticos do wwwroot
 
+app.UseAuthentication(); // Adicione a autenticação ao pipeline
 app.UseAuthorization();
 
 app.MapControllers();
 
-
-// app.Run("http://192.168.42.35:3000");
-
-app.Run("http://192.168.88.93:3000");
-
-// app.Run("http://192.168.1.8:3000");
-
-
+app.Run("http://192.168.1.8:3000");
 
 app.Run();
-
