@@ -1,4 +1,4 @@
- using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -125,40 +125,59 @@ namespace api_receita.DAL.Repositorys
 
 
 
-        public async Task<DTOResponse> List_Rating()
+        public async Task<DTOResponse> List_Rating_By_Recipe(int id_recipe)
         {
             DTOResponse response = new DTOResponse();
 
             try
             {
-                var query = await dbContext.Tb_Avaliacao
-                    .Select(avaliacao => new
+                // Verificar se a receita existe
+                var receita = await dbContext.Tb_Receita.FindAsync(id_recipe);
+                if (receita == null)
+                {
+                    response.message = "Recipe not found";
+                    return response;
+                }
+
+                // Listar avaliações associadas à receita
+                var query = await dbContext.Tb_Receita_Avaliacao
+                    .Where(ra => ra.RecipeId == id_recipe)
+                    .Select(ra => new
                     {
-                        avaliacao.Id,
-                        avaliacao.Value,
-                        avaliacao.Message,
-                        User = dbContext.Tb_User
-                            .Where(user => user.Id == avaliacao.Id_User)
-                            .Select(user => new
+                        ra.RatingId,
+                        Rating = dbContext.Tb_Avaliacao
+                            .Where(a => a.Id == ra.RatingId)
+                            .Select(a => new
                             {
-                                user.Id,
-                                user.First_Name,
-                                user.Last_Name,
-                                user.Email
+                                a.Id,
+                                a.Value,
+                                a.Message,
+                                User = dbContext.Tb_User
+                                    .Where(user => user.Id == a.Id_User)
+                                    .Select(user => new
+                                    {
+                                        user.Id,
+                                        user.First_Name,
+                                        user.Last_Name,
+                                        user.Email
+                                    })
+                                    .FirstOrDefault()
                             })
                             .FirstOrDefault()
                     })
                     .ToListAsync();
 
                 response.response = query;
-                response.message = "Sucess";
+                response.message = "Success";
             }
             catch (Exception e)
             {
-                response.message = $"Opps we have a problem {e.Message}";
+                response.message = $"Oops we have a problem: {e.Message}";
             }
 
             return response;
         }
+
+
     }
 }

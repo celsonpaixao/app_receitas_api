@@ -18,9 +18,9 @@ namespace api_receita.Controllers
         }
         [Authorize]
         [HttpGet("list_all_avaliaction")]
-        public async Task<ActionResult<DTOResponse>> ListarTodasAvaliacoes()
+        public async Task<ActionResult<DTOResponse>> ListarTodasAvaliacoes(int id_receita)
         {
-            var resposta = await avaliacao.List_Rating();
+            var resposta = await avaliacao.List_Rating_By_Recipe(id_receita);
 
             return Ok(resposta);
         }
