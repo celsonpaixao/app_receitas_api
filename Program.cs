@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 DotNetEnv.Env.Load();
 
 // Obter a string de conexão do ambiente
-var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING_LOCAL");
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
 // Adicionar serviços ao contêiner
 builder.Services.AddControllers();
@@ -101,6 +101,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run("http://192.168.1.8:3000");
+// app.Run("http://192.168.1.8:3000");
 
 app.Run();
